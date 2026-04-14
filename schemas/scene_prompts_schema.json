@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["scenes"],
+  "properties": {
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scene_id", "video_prompt", "duration_seconds", "camera", "mood"],
+        "properties": {
+          "scene_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "video_prompt": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 500,
+            "description": "Detailed visual prompt for AI image generation (40-80 words)"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "minimum": 1
+          },
+          "camera": {
+            "type": "string",
+            "description": "Camera angle and movement description"
+          },
+          "mood": {
+            "type": "string",
+            "description": "One-line mood description"
+          }
+        }
+      }
+    }
+  }
+}
