@@ -24,34 +24,41 @@ except ImportError:
     sys.exit(1)
 
 
-PROMPT_TEMPLATE = """You are an expert at creating simple, clear prompts for AI image generators.
+PROMPT_TEMPLATE = """You are a creative director creating visual prompts for AI image generators.
 
-For each scene, create a SHORT and CLEAR prompt (max 20 words) that describes exactly what should appear in the image.
+The goal is to create a COMPELLING ADVERTISEMENT that looks professional and sells the product.
 
 Script scenes:
 {scenes_json}
 
+Product: {product_name}
 Brand Colors: {brand_colors}
 
-Return ONLY valid JSON in this format:
+IMPORTANT RULES:
+1. Create CLEAR, SPECIFIC prompts that describe EXACTLY what should appear
+2. Use simple, direct language - AI generators understand "a person at desk with multiple screens" better than "synergy optimization"
+3. Describe REAL scenes - people, objects, settings, not abstract concepts
+4. Include style: "commercial photography, professional, high quality, bright lighting"
+5. Describe backgrounds and settings clearly
+6. Use brand colors in the scene descriptions
+
+Return ONLY valid JSON:
 {{
   "scenes": [
     {{
       "scene_id": <number>,
-      "video_prompt": "<short clear description of exact visual content>",
-      "on_screen_text": "<text to show on screen during this scene>",
+      "video_prompt": "<clear visual description for AI image generator>",
+      "on_screen_text": "<short text to show on screen>",
       "duration_seconds": <number>
     }}
   ]
 }}
 
-RULES:
-- Keep prompts SIMPLE and DIRECT - AI generators understand simple language better
-- Describe EXACTLY what to show: "a person using laptop", "hands typing on keyboard", "phone screen showing app"
-- Add style: "photo, realistic, high quality, bright lighting"
-- Use brand colors in description if mentioned
-- NO fancy camera terms - just describe the scene simply
-- Max 20 words per prompt
+Examples of GOOD prompts:
+- "stressed business owner at cluttered desk with four screens showing Instagram Facebook Twitter LinkedIn, dark moody lighting, professional commercial photography"
+- "happy entrepreneur at clean desk with laptop showing simple dashboard, bright natural window light, professional photo"
+- "diverse small business owners smiling at phones and laptops in modern co-working space, bright warm lighting, authentic commercial style"
+- "clean modern laptop screen with big button that says Get Started, minimalist white desk, soft gradient background in blue and white, professional product photography"
 """
 
 
@@ -64,19 +71,20 @@ def generate_prompts(script: dict, brief: dict, max_retries: int = 3) -> dict:
 
     prompt = PROMPT_TEMPLATE.format(
         scenes_json=json.dumps(script["scenes"], indent=2),
+        product_name=brief.get("product_name", ""),
         brand_colors=", ".join(brief.get("brand_colors", [])),
     )
 
     model = GROQ_MODEL
     for attempt in range(max_retries):
         try:
-            print(f"   🤖 Creating prompts using {model}...")
+            print(f"   🤖 Creating visual prompts using {model}...")
 
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
-                max_tokens=1500,
+                max_tokens=2000,
                 response_format={"type": "json_object"},
             )
 
