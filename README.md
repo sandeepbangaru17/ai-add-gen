@@ -10,19 +10,82 @@
 
 <p align="center">
   <strong>Create professional video advertisements in minutes using AI</strong><br>
-  Free • No credit card • No video editing skills required
+  Free • No credit card required • No video editing skills needed
 </p>
+
+---
+
+## 🎥 See It In Action
+
+<p align="center">
+  <strong>30-Second ZunoSync Advertisement - Generated with AI</strong>
+</p>
+
+<div align="center">
+
+https://github.com/user-attachments/assets/video-placeholder
+
+</div>
+
+<p align="center">
+  <em>This entire video was created using the AI Ad Creation Pipeline — from script to final export</em>
+</p>
+
+<details>
+<summary><strong>📋 View the Generated Script</strong></summary>
+
+```json
+{
+  "product_name": "ZunoSync",
+  "target_audience": "Small business owners and startups",
+  "total_duration_seconds": 30,
+  "scenes": [
+    {
+      "scene_id": 1,
+      "duration_seconds": 8,
+      "voiceover": "Managing social media for your business shouldn't feel like a second job...",
+      "on_screen_text": "Social Media Overload?",
+      "visual_description": "A stressed small business owner with multiple devices showing different social media apps"
+    },
+    {
+      "scene_id": 2,
+      "duration_seconds": 8,
+      "voiceover": "What if you could manage all your accounts from one simple dashboard?",
+      "on_screen_text": "One Dashboard. All Platforms.",
+      "visual_description": "Clean desk with ZunoSync dashboard in brand colors"
+    },
+    {
+      "scene_id": 3,
+      "duration_seconds": 8,
+      "voiceover": "Thousands of small businesses already save hours every week with ZunoSync...",
+      "on_screen_text": "Trusted by 10,000+ Businesses",
+      "visual_description": "Diverse business owners using ZunoSync with engagement metrics"
+    },
+    {
+      "scene_id": 4,
+      "duration_seconds": 6,
+      "voiceover": "Start your free trial today at zunosync.com...",
+      "on_screen_text": "Start Free Trial at zunosync.com",
+      "visual_description": "Clean Get Started button with brand colors"
+    }
+  ]
+}
+```
+
+</details>
 
 ---
 
 ## ✨ Features
 
-- **🤖 AI-Powered Script Generation** - Create compelling ad scripts with Groq's Llama 3.3
-- **🎙️ Natural Voiceover** - Professional neural voices using Microsoft Edge TTS
-- **🎨 AI Image Generation** - Stunning visuals with Pollinations Flux (free, no API key)
-- **🎬 Ken Burns Effect** - Cinematic motion on static images
-- **📱 Multi-Platform Export** - Optimized for Instagram, YouTube, TikTok, Facebook
-- **💾 Complete Deliverables** - Master video, social cuts, subtitles, metadata
+| Feature | Description |
+|---------|-------------|
+| 🤖 **AI Script Generation** | Create compelling ad scripts with Groq's Llama 3.3 |
+| 🎙️ **Natural Voiceover** | Professional neural voices using Microsoft Edge TTS |
+| 🎨 **AI Image Generation** | Stunning visuals with Pollinations Flux (free, no API key) |
+| 🎬 **Ken Burns Effect** | Cinematic motion on static images |
+| 📱 **Multi-Platform Export** | Optimized for Instagram, YouTube, TikTok, Facebook |
+| 💾 **Complete Deliverables** | Master video, social cuts, subtitles, metadata |
 
 ---
 
@@ -61,12 +124,12 @@ HF_TOKEN=your_huggingface_token_here   # Optional
 
 ### 5. Run the Pipeline
 
-**Interactive Mode (recommended for new topics):**
+**Interactive Mode:**
 ```bash
 python pipeline.py
 ```
 
-**Test Mode (ZunoSync demo):**
+**Demo Mode (ZunoSync ad):**
 ```bash
 python pipeline.py --default
 ```
@@ -78,7 +141,7 @@ python pipeline.py --brief my_brief.json
 
 ---
 
-## 📋 Project Structure
+## 📁 Project Structure
 
 ```
 ai-add-gen/
@@ -90,10 +153,11 @@ ai-add-gen/
 │   ├── voice_agent.py         # Voiceover (edge-tts)
 │   ├── prompt_agent.py        # Visual prompts (LLM)
 │   ├── video_agent.py         # AI images + Ken Burns
-│   ├── stitch_agent.py        # Video assembly (FFmpeg)
+│   ├── stitch_agent.py         # Video assembly (FFmpeg)
 │   ├── post_agent.py          # Platform exports
 │   └── export_agent.py        # Final packaging
 ├── 📁 schemas/                 # JSON validation schemas
+├── 📄 zunosync_ad_script.json  # Production example script
 ├── 📄 requirements.txt         # Python dependencies
 ├── 📄 spec.md                 # Technical specification
 └── 📄 README.md               # This file
@@ -107,66 +171,66 @@ The pipeline consists of **8 stages** that transform a campaign brief into profe
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                        PIPELINE OVERVIEW                                │
-├──────────────┬──────────────┬──────────────┬──────────────────────────┤
-│  Stage       │  Agent       │  Tool        │  Output                  │
-├──────────────┼──────────────┼──────────────┼──────────────────────────┤
-│ 1. Brief     │ Brief Agent  │ CLI Input    │ brief.json               │
-│ 2. Script    │ Script Agent │ Groq LLM     │ script.json              │
-│ 3. Voice     │ Voice Agent  │ edge-tts     │ voiceover.mp3 + SRT      │
-│ 4. Prompts   │ Prompt Agent │ Groq LLM     │ scene_prompts.json       │
-│ 5. Video     │ Video Agent  │ Pollinations │ scene_clips/             │
-│ 6. Stitch    │ Stitch Agent │ FFmpeg       │ ad_draft.mp4             │
+│                           PIPELINE OVERVIEW                               │
+├──────────────┬──────────────┬──────────────┬────────────────────────────┤
+│  Stage       │  Agent       │  Tool        │  Output                   │
+├──────────────┼──────────────┼──────────────┼────────────────────────────┤
+│ 1. Brief     │ Brief Agent  │ CLI Input    │ brief.json                │
+│ 2. Script    │ Script Agent │ Groq LLM     │ script.json               │
+│ 3. Voice     │ Voice Agent  │ edge-tts     │ voiceover.mp3 + SRT       │
+│ 4. Prompts   │ Prompt Agent │ Groq LLM     │ scene_prompts.json        │
+│ 5. Video     │ Video Agent  │ Pollinations │ scene_clips/              │
+│ 6. Stitch    │ Stitch Agent │ FFmpeg       │ ad_draft.mp4              │
 │ 7. Post      │ Post Agent   │ FFmpeg       │ 4 format variations       │
-│ 8. Export    │ Export Agent │ FFmpeg       │ final_output/            │
-└──────────────┴──────────────┴──────────────┴──────────────────────────┘
+│ 8. Export    │ Export Agent │ FFmpeg       │ final_output/             │
+└──────────────┴──────────────┴──────────────┴────────────────────────────┘
 ```
 
 ### Stage Details
 
-| Stage | Description |
-|-------|-------------|
-| **1. Brief** | Enter campaign details: product name, audience, duration, tone, platforms, CTA |
-| **2. Script** | AI generates a compelling 5-scene script with voiceovers and on-screen text |
-| **3. Voice** | Neural text-to-speech creates professional voiceover audio |
-| **4. Prompts** | AI generates detailed visual prompts for each scene |
-| **5. Video** | AI generates images + Ken Burns effect creates animated clips |
-| **6. Stitch** | FFmpeg combines clips, adds audio, burns subtitles |
-| **7. Post** | Exports to 9:16 (Reels), 1:1 (Feed), 16:9 (YouTube) |
-| **8. Export** | Packages everything in organized folder structure |
+| Stage | Description | Output |
+|-------|-------------|--------|
+| **1. Brief** | Enter campaign details | `brief.json` |
+| **2. Script** | AI generates 4-scene script with voiceovers | `script.json` |
+| **3. Voice** | Neural TTS creates professional voiceover | `voiceover.mp3` |
+| **4. Prompts** | AI generates visual prompts for each scene | `scene_prompts.json` |
+| **5. Video** | AI generates images + Ken Burns effect | `scene_clips/*.mp4` |
+| **6. Stitch** | Combines clips, adds audio, burns subtitles | `ad_draft.mp4` |
+| **7. Post** | Exports to 9:16, 1:1, 16:9 formats | `zunosync_*.mp4` |
+| **8. Export** | Packages in organized folder structure | `final_output/` |
 
 ---
 
-## 📁 Output Structure
+## 📂 Output Structure
 
-After running the pipeline, you'll find your deliverables in `final_output/`:
+After running the pipeline:
 
 ```
 final_output/
 ├── 📁 master/
-│   └── zunosync_ad_master_HD.mp4      # High quality master (1920x1080)
+│   └── zunosync_ad_master_HD.mp4      # High quality (1920x1080)
 │
 ├── 📁 social/
-│   ├── zunosync_ad_9x16_reels.mp4     # Instagram Reels / TikTok / YouTube Shorts
+│   ├── zunosync_ad_9x16_reels.mp4     # Instagram Reels / TikTok
 │   ├── zunosync_ad_1x1_feed.mp4       # Instagram Feed / Facebook
 │   └── zunosync_ad_16x9_youtube.mp4   # YouTube / LinkedIn
 │
 ├── 📁 assets/
-│   ├── subtitles.srt                  # Subtitles file (burned into video)
+│   ├── subtitles.srt                  # Subtitles file
 │   └── thumbnail.png                  # Video thumbnail
 │
 └── 📁 metadata/
-    ├── brief.json                     # Original campaign brief
-    ├── script.json                    # Generated ad script
-    ├── scene_prompts.json             # Visual prompts used
-    └── production_log.json           # Pipeline execution log
+    ├── brief.json                     # Original brief
+    ├── script.json                    # Generated script
+    ├── scene_prompts.json             # Visual prompts
+    └── production_log.json           # Execution log
 ```
 
 ---
 
 ## 🎨 Example Campaign Brief
 
-Create a `my_brief.json` file:
+Create a `my_brief.json`:
 
 ```json
 {
@@ -182,20 +246,20 @@ Create a `my_brief.json` file:
 }
 ```
 
-**Brief Validation Rules:**
-- `ad_duration_seconds` must be 15, 30, or 60
-- `platform` must have at least one platform
-- `cta` maximum 60 characters
+**Validation Rules:**
+- `ad_duration_seconds`: Must be 15, 30, or 60
+- `platform`: At least one platform required
+- `cta`: Maximum 60 characters
 
 ---
 
 ## 🛠️ Tools & Technologies
 
-### Free Tools Used (No Credit Card Required)
+### All Free — No Credit Card Required
 
 | Tool | Purpose | Cost |
 |------|---------|------|
-| **Groq API** | LLM for script & prompts | Free tier: 30 req/min |
+| **Groq API** | LLM for script & prompts | Free tier (30 req/min) |
 | **edge-tts** | Neural text-to-speech | Completely free |
 | **Pollinations AI** | AI image generation | Completely free |
 | **FFmpeg** | Video processing | Open source |
@@ -204,20 +268,20 @@ Create a `my_brief.json` file:
 
 - **Groq**: Fastest LLM inference, generous free tier
 - **edge-tts**: High-quality Microsoft neural voices
-- **Pollinations**: No API key needed, good image quality
+- **Pollinations**: No API key needed, excellent image quality
 - **FFmpeg**: Industry-standard video processing
 
 ---
 
 ## ⏱️ Performance
 
-| Metric | Value |
-|--------|-------|
-| **Total Time** | ~2-3 minutes |
+| Metric | Time |
+|--------|------|
+| **Total Pipeline** | ~2-3 minutes |
 | **Script Generation** | ~3 seconds |
 | **Voice Generation** | ~10-25 seconds |
 | **Prompt Generation** | ~2 seconds |
-| **Image Generation** | ~20-30 seconds per scene |
+| **Image Generation** | ~5-10 seconds per scene |
 | **Video Assembly** | ~30 seconds |
 
 ---
@@ -232,45 +296,16 @@ python pipeline.py [options]
 Options:
   --default              Use built-in ZunoSync test brief
   --brief <path>         Use custom brief JSON file
-  --start-from <stage>   Resume from specific stage (1-8)
+  --start-from <stage>   Resume from stage 1-8
 ```
 
-### Environment Variables
-
-```env
-# Required
-GROQ_API_KEY=your_groq_api_key_here
-
-# Optional
-HF_TOKEN=your_huggingface_token_here   # For HuggingFace fallback
-PEXELS_API_KEY=your_pexels_key_here     # For stock image fallback
-```
-
-### Customizing Voice
-
-Edit `config.py` to change the TTS voice:
-
-```python
-VOICE_MAP = {
-    "professional": "en-US-GuyNeural",  # Male, calm, clear
-    "energetic": "en-US-TonyNeural",    # Male, upbeat
-    "emotional": "en-US-AriaNeural",    # Female, warm
-    "urgent": "en-US-DavisNeural",       # Male, direct
-    "warm": "en-US-JennyNeural",         # Female, soft
-}
-```
-
----
-
-## 🔄 Pipeline Resume
-
-If the pipeline fails, you can resume from any stage:
+### Resume from Any Stage
 
 ```bash
-# Resume from Stage 3 (Voice Generation)
+# Resume from voice generation
 python pipeline.py --start-from 3
 
-# Resume from Stage 5 (Video Generation)
+# Resume from video generation
 python pipeline.py --start-from 5
 ```
 
@@ -282,10 +317,10 @@ python pipeline.py --start-from 5
 
 | Issue | Solution |
 |-------|----------|
-| "GROQ_API_KEY not set" | Add your API key to `.env` file |
+| "GROQ_API_KEY not set" | Add API key to `.env` file |
 | FFmpeg not found | Install FFmpeg and add to PATH |
-| Fontconfig error on Windows | This is normal, subtitles still work |
-| Images look blurry | Use Pollinations Flux model (already default) |
+| Fontconfig error | Normal on Windows, subtitles still work |
+| Images look blurry | Using Pollinations Flux (default) |
 
 ### FFmpeg Installation
 
@@ -306,56 +341,78 @@ sudo apt install ffmpeg
 
 ---
 
-## 📊 Pipeline Results
+## 📊 Example: 30-Second ZunoSync Ad
 
-After completion, check `output/pipeline_results.json`:
+### Script Structure
 
-```json
-{
-  "success": true,
-  "stages_completed": 8,
-  "total_time_seconds": 156.2,
-  "outputs": {
-    "master_video": "final_output/master/zunosync_ad_master_HD.mp4",
-    "social_exports": ["9x16", "1x1", "16x9"]
-  }
-}
+| Scene | Duration | Purpose | Key Message |
+|-------|----------|---------|-------------|
+| 1 | 8s | **Problem** | Social media overwhelm |
+| 2 | 8s | **Solution** | One dashboard for all |
+| 3 | 8s | **Proof** | 10,000+ businesses trust it |
+| 4 | 6s | **CTA** | Start free trial |
+
+### The Ad Flow
+
+```
+Scene 1: Problem
+┌─────────────────────────────────────┐
+│  😰 Multiple devices, different      │
+│  platforms, overwhelming           │
+│                                     │
+│  "Social Media Overload?"           │
+└─────────────────────────────────────┘
+
+Scene 2: Solution
+┌─────────────────────────────────────┐
+│  😊 Clean desk, single dashboard    │
+│  showing ZunoSync                   │
+│                                     │
+│  "One Dashboard. All Platforms."    │
+└─────────────────────────────────────┘
+
+Scene 3: Social Proof
+┌─────────────────────────────────────┐
+│  👥 Diverse businesses succeeding   │
+│  with growing engagement metrics    │
+│                                     │
+│  "Trusted by 10,000+ Businesses"    │
+└─────────────────────────────────────┘
+
+Scene 4: Call to Action
+┌─────────────────────────────────────┐
+│  🖱️ "Get Started" button           │
+│  with brand colors                  │
+│                                     │
+│  "Start Free Trial → zunosync.com" │
+└─────────────────────────────────────┘
 ```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome!
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes with detailed commit messages
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Commit with detailed messages
+4. Push and open a Pull Request
 
 ---
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **Groq** - For providing fast and free LLM inference
-- **Microsoft** - For edge-tts neural voices
-- **Pollinations** - For free AI image generation
-- **FFmpeg** - For industry-standard video processing
-- **HuggingFace** - For AI model hosting
-
----
-
-## 📞 Support
-
-- **Issues:** [GitHub Issues](https://github.com/sandeepbangaru17/ai-add-gen/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/sandeepbangaru17/ai-add-gen/discussions)
+- **Groq** - Fast and free LLM inference
+- **Microsoft** - Edge-tts neural voices
+- **Pollinations** - Free AI image generation
+- **FFmpeg** - Industry-standard video processing
 
 ---
 
@@ -364,5 +421,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 </p>
 
 <p align="center">
-  ⭐ Star this repo if you found it useful!
+  <a href="https://github.com/sandeepbangaru17/ai-add-gen">⭐ Star this repo</a>
+  •
+  <a href="https://github.com/sandeepbangaru17/ai-add-gen/issues">Report Bug</a>
+  •
+  <a href="https://github.com/sandeepbangaru17/ai-add-gen/discussions">Request Feature</a>
 </p>
