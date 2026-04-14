@@ -23,13 +23,29 @@
 
 <div align="center">
 
-https://github.com/user-attachments/assets/video-placeholder
+https://github.com/sandeepbangaru17/ai-add-gen/raw/main/demo/zunosync_ad_demo.mp4
 
 </div>
 
 <p align="center">
   <em>This entire video was created using the AI Ad Creation Pipeline — from script to final export</em>
 </p>
+
+---
+
+### Video Details
+
+| Attribute | Value |
+|-----------|-------|
+| **Duration** | 30 seconds |
+| **Scenes** | 4 (Problem → Solution → Proof → CTA) |
+| **Format** | 16:9 (1920x1080) |
+| **Voiceover** | AI-generated with edge-tts |
+| **Images** | AI-generated with Pollinations Flux |
+| **Effect** | Ken Burns cinematic motion |
+| **Subtitles** | Auto-generated and burned in |
+
+---
 
 <details>
 <summary><strong>📋 View the Generated Script</strong></summary>
