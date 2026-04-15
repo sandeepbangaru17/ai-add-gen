@@ -12,8 +12,16 @@ load_dotenv()
 
 # ─── API Keys ────────────────────────────────────────────────────────
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+NVIDIA_API_KEY = os.getenv(
+    "NVIDIA_API_KEY",
+    "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",
+)
 HF_TOKEN = os.getenv("HF_TOKEN", "")
 PEXELS_API_KEY = os.getenv("PEXELS_API_KEY", "")
+
+# ─── LLM Provider Selection ──────────────────────────────────────────
+# Choose 'nvidia' for NVIDIA Nemotron or 'groq' for Groq Llama
+LLM_PROVIDER = "nvidia"  # Change to "groq" to use Groq instead
 
 # ─── Paths ───────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent.resolve()
