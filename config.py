@@ -16,7 +16,8 @@ NVIDIA_API_KEY = os.getenv(
     "NVIDIA_API_KEY",
     "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",
 )
-HF_TOKEN = os.getenv("HF_TOKEN", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "")  # Your HF token (for future use)
+# Note: HF Inference API is deprecated. Using Pollinations AI for free image generation.
 PEXELS_API_KEY = os.getenv("PEXELS_API_KEY", "")
 
 # ─── LLM Provider Selection ──────────────────────────────────────────
