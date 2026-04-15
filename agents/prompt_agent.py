@@ -1,6 +1,6 @@
 """
 Stage 4 — Scene Prompt Creation Agent
-Uses Groq (free LLM) to convert script scenes into cinematic visual prompts.
+Uses LLM (NVIDIA Nemotron or Groq) to convert script scenes into visual prompts.
 Outputs: output/scene_prompts.json
 """
 
@@ -14,33 +14,28 @@ from config import (
     GROQ_API_KEY,
     GROQ_MODEL,
     GROQ_FALLBACK_MODEL,
+    NVIDIA_API_KEY,
+    LLM_PROVIDER,
     ensure_dirs,
 )
 
 try:
     from groq import Groq
+    from openai import OpenAI
 except ImportError:
-    print("❌ Please install groq: pip install groq")
+    print("❌ Please install: pip install groq openai")
     sys.exit(1)
 
 
 PROMPT_TEMPLATE = """You are a creative director creating visual prompts for AI image generators.
 
-The goal is to create a COMPELLING ADVERTISEMENT that looks professional and sells the product.
+Create CLEAR, SPECIFIC prompts that describe EXACTLY what should appear.
 
 Script scenes:
 {scenes_json}
 
 Product: {product_name}
 Brand Colors: {brand_colors}
-
-IMPORTANT RULES:
-1. Create CLEAR, SPECIFIC prompts that describe EXACTLY what should appear
-2. Use simple, direct language - AI generators understand "a person at desk with multiple screens" better than "synergy optimization"
-3. Describe REAL scenes - people, objects, settings, not abstract concepts
-4. Include style: "commercial photography, professional, high quality, bright lighting"
-5. Describe backgrounds and settings clearly
-6. Use brand colors in the scene descriptions
 
 Return ONLY valid JSON:
 {{
@@ -54,20 +49,31 @@ Return ONLY valid JSON:
   ]
 }}
 
-Examples of GOOD prompts:
+Examples:
 - "stressed business owner at cluttered desk with four screens showing Instagram Facebook Twitter LinkedIn, dark moody lighting, professional commercial photography"
 - "happy entrepreneur at clean desk with laptop showing simple dashboard, bright natural window light, professional photo"
-- "diverse small business owners smiling at phones and laptops in modern co-working space, bright warm lighting, authentic commercial style"
-- "clean modern laptop screen with big button that says Get Started, minimalist white desk, soft gradient background in blue and white, professional product photography"
+- "diverse small business owners smiling at phones and laptops in modern co-working space, bright warm lighting"
+- "clean laptop screen with Get Started button, minimalist desk, blue and white gradient background"
 """
 
 
-def generate_prompts(script: dict, brief: dict, max_retries: int = 3) -> dict:
-    """Generate scene prompts using Groq LLM."""
-    if not GROQ_API_KEY:
-        raise ValueError("GROQ_API_KEY not set in .env file")
+def get_llm_client():
+    """Get configured LLM client"""
+    if LLM_PROVIDER == "nvidia" and NVIDIA_API_KEY:
+        return (
+            OpenAI(
+                base_url="https://integrate.api.nvidia.com/v1", api_key=NVIDIA_API_KEY
+            ),
+            "nvidia/nemotron-3-super-120b-a12b",
+            "nvidia",
+        )
+    else:
+        return Groq(api_key=GROQ_API_KEY), "llama-3.3-70b-versatile", "groq"
 
-    client = Groq(api_key=GROQ_API_KEY)
+
+def generate_prompts(script: dict, brief: dict, max_retries: int = 3) -> dict:
+    """Generate scene prompts using LLM (NVIDIA or Groq)."""
+    client, model, provider = get_llm_client()
 
     prompt = PROMPT_TEMPLATE.format(
         scenes_json=json.dumps(script["scenes"], indent=2),
@@ -75,18 +81,25 @@ def generate_prompts(script: dict, brief: dict, max_retries: int = 3) -> dict:
         brand_colors=", ".join(brief.get("brand_colors", [])),
     )
 
-    model = GROQ_MODEL
     for attempt in range(max_retries):
         try:
             print(f"   🤖 Creating visual prompts using {model}...")
 
-            response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=2000,
-                response_format={"type": "json_object"},
-            )
+            if provider == "nvidia":
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7,
+                    max_tokens=2048,
+                )
+            else:
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7,
+                    max_tokens=2000,
+                    response_format={"type": "json_object"},
+                )
 
             raw = response.choices[0].message.content
             result = json.loads(raw)
@@ -98,12 +111,8 @@ def generate_prompts(script: dict, brief: dict, max_retries: int = 3) -> dict:
 
         except json.JSONDecodeError as e:
             print(f"   ⚠️  Invalid JSON: {e}")
-            if attempt == 1:
-                model = GROQ_FALLBACK_MODEL
         except Exception as e:
             print(f"   ⚠️  API error: {e}")
-            if attempt == 1:
-                model = GROQ_FALLBACK_MODEL
 
     raise RuntimeError("Failed to generate scene prompts after all retries")
 

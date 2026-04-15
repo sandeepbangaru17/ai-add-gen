@@ -1,6 +1,6 @@
 """
 Stage 2 — Script Generation Agent
-Uses Groq (free LLM) to generate a structured ad script from the brief.
+Uses LLM (NVIDIA Nemotron or Groq) to generate a structured ad script.
 Outputs: output/script.json
 """
 
@@ -9,12 +9,21 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import OUTPUT_DIR, GROQ_API_KEY, GROQ_MODEL, GROQ_FALLBACK_MODEL, ensure_dirs
+from config import (
+    OUTPUT_DIR,
+    GROQ_API_KEY,
+    GROQ_MODEL,
+    GROQ_FALLBACK_MODEL,
+    NVIDIA_API_KEY,
+    LLM_PROVIDER,
+    ensure_dirs,
+)
 
 try:
     from groq import Groq
+    from openai import OpenAI
 except ImportError:
-    print("❌ Please install groq: pip install groq")
+    print("❌ Please install: pip install groq openai")
     sys.exit(1)
 
 
@@ -23,29 +32,44 @@ PROMPT_TEMPLATE = """You are a professional ad copywriter. Given the following c
 Brief:
 {brief_json}
 
-Return ONLY valid JSON matching this exact schema (no markdown, no explanation):
+Return ONLY valid JSON matching this exact schema:
 {{
   "total_duration_seconds": {duration},
   "scenes": [
     {{
       "scene_id": 1,
       "duration_seconds": <number>,
-      "voiceover": "<narration text, under 20 words>",
+      "voiceover": "<narration, under 20 words>",
       "on_screen_text": "<short text shown on screen>",
-      "visual_description": "<what the viewer sees>"
+      "visual_description": "<detailed scene description for AI image generation>"
     }}
   ]
 }}
 
 Requirements:
-- Hook the viewer in the first 3 seconds
-- Keep each scene voiceover under 20 words
-- End with a clear CTA matching: {cta}
+- Hook viewer in first 3 seconds
+- Keep voiceovers under 20 words each
+- End with clear CTA: {cta}
 - Tone: {tone}
-- Scene durations MUST add up to exactly {duration} seconds
-- Generate 4-6 scenes depending on duration
-- Each visual_description should be detailed enough for AI image generation
+- Scene durations MUST add up to {duration} seconds
+- Generate 4 scenes
+- Make it emotional and compelling
+- visual_description should be vivid and detailed for AI image generation
 """
+
+
+def get_llm_client():
+    """Get configured LLM client"""
+    if LLM_PROVIDER == "nvidia" and NVIDIA_API_KEY:
+        return (
+            OpenAI(
+                base_url="https://integrate.api.nvidia.com/v1", api_key=NVIDIA_API_KEY
+            ),
+            "nvidia/nemotron-3-super-120b-a12b",
+            "nvidia",
+        )
+    else:
+        return Groq(api_key=GROQ_API_KEY), "llama-3.3-70b-versatile", "groq"
 
 
 def validate_script(script: dict, expected_duration: int) -> list[str]:
@@ -61,25 +85,33 @@ def validate_script(script: dict, expected_duration: int) -> list[str]:
         errors.append(f"Scene durations sum to {total}s, expected {expected_duration}s")
 
     for i, scene in enumerate(script["scenes"]):
-        required = ["scene_id", "duration_seconds", "voiceover", "on_screen_text", "visual_description"]
+        required = [
+            "scene_id",
+            "duration_seconds",
+            "voiceover",
+            "on_screen_text",
+            "visual_description",
+        ]
         for field in required:
             if field not in scene:
-                errors.append(f"Scene {i+1} missing field: {field}")
+                errors.append(f"Scene {i + 1} missing field: {field}")
 
         vo = scene.get("voiceover", "")
         if len(vo.split()) > 25:
-            errors.append(f"Scene {i+1} voiceover too long ({len(vo.split())} words)")
+            errors.append(f"Scene {i + 1} voiceover too long ({len(vo.split())} words)")
 
     return errors
 
 
 def generate_script(brief: dict, max_retries: int = 3) -> dict:
-    """Generate script using Groq LLM."""
-    if not GROQ_API_KEY:
-        raise ValueError("GROQ_API_KEY not set in .env file")
-
-    client = Groq(api_key=GROQ_API_KEY)
+    """Generate script using LLM (NVIDIA or Groq)."""
+    client, model, provider = get_llm_client()
     duration = brief["ad_duration_seconds"]
+
+    if not GROQ_API_KEY and provider == "groq":
+        raise ValueError("GROQ_API_KEY not set in .env file")
+    if not NVIDIA_API_KEY and provider == "nvidia":
+        raise ValueError("NVIDIA_API_KEY not set")
 
     prompt = PROMPT_TEMPLATE.format(
         duration=duration,
@@ -88,18 +120,25 @@ def generate_script(brief: dict, max_retries: int = 3) -> dict:
         tone=brief.get("tone", "professional"),
     )
 
-    model = GROQ_MODEL
     for attempt in range(max_retries):
         try:
-            print(f"   🤖 Attempt {attempt+1}/{max_retries} using {model}...")
+            print(f"   🤖 Generating script using {model}...")
 
-            response = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=2000,
-                response_format={"type": "json_object"},
-            )
+            if provider == "nvidia":
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7,
+                    max_tokens=2048,
+                )
+            else:
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7,
+                    max_tokens=2000,
+                    response_format={"type": "json_object"},
+                )
 
             raw = response.choices[0].message.content
             script = json.loads(raw)
@@ -111,17 +150,12 @@ def generate_script(brief: dict, max_retries: int = 3) -> dict:
 
             print(f"   ⚠️  Validation issues: {errors}")
             if attempt < max_retries - 1:
-                prompt += "\n\nIMPORTANT: Fix these issues: " + "; ".join(errors)
+                prompt += "\n\nIMPORTANT: Fix: " + "; ".join(errors)
 
         except json.JSONDecodeError as e:
             print(f"   ⚠️  Invalid JSON response: {e}")
-            if attempt == 1:
-                model = GROQ_FALLBACK_MODEL
-                print(f"   🔄 Switching to fallback model: {model}")
         except Exception as e:
             print(f"   ⚠️  API error: {e}")
-            if attempt == 1:
-                model = GROQ_FALLBACK_MODEL
 
     raise RuntimeError("Failed to generate valid script after all retries")
 
@@ -134,7 +168,9 @@ def run(brief: dict = None) -> dict:
     if brief is None:
         brief_path = OUTPUT_DIR / "brief.json"
         if not brief_path.exists():
-            raise FileNotFoundError(f"Brief not found at {brief_path}. Run Stage 1 first.")
+            raise FileNotFoundError(
+                f"Brief not found at {brief_path}. Run Stage 1 first."
+            )
         with open(brief_path, "r", encoding="utf-8") as f:
             brief = json.load(f)
 
@@ -155,7 +191,9 @@ def run(brief: dict = None) -> dict:
     print(f"\n✅ Script generated: {output_path}")
     print(f"   Scenes: {len(script['scenes'])}")
     for s in script["scenes"]:
-        print(f"   Scene {s['scene_id']} ({s['duration_seconds']}s): {s['voiceover'][:50]}...")
+        print(
+            f"   Scene {s['scene_id']} ({s['duration_seconds']}s): {s['voiceover'][:50]}..."
+        )
 
     return script
 
