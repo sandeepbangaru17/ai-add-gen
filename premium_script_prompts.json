@@ -1,0 +1,28 @@
+{
+  "scenes": [
+    {
+      "scene_id": 1,
+      "video_prompt": "tired small business owner in his late 30s, sitting at a cluttered home office desk at 11pm, scattered business papers, half-empty coffee mug, multiple smartphone screens glowing with Instagram, Facebook, Twitter notifications casting a subtle blue glow, dark moody office lighting with a warm desk lamp providing soft amber fill, close-up portrait, shallow depth of field focusing on the owner's weary eyes, background blurred, professional photography, 4K, sharp focus, commercial quality, brand color accents: a sticky note in #1A1AFF blue and a white mug",
+      "on_screen_text": "Sound familiar?",
+      "duration_seconds": 5
+    },
+    {
+      "scene_id": 2,
+      "video_prompt": "young diverse entrepreneur smiling with relief, seated at a modern laptop displaying the clean ZunoSync dashboard interface with colorful social media icons arranged neatly, content calendar visible, bright sunlit coworking space with large window, green plants on desk, warm natural daylight streaming in, medium shot with shallow depth of field on the laptop screen while the entrepreneur is softly in focus, professional photography, 4K, sharp focus, commercial quality, brand colors: dashboard highlights in #1A1AFF blue, white background, subtle #F5F5FF lavender accents on icons",
+      "on_screen_text": "One Dashboard. Total Control.",
+      "duration_seconds": 7
+    },
+    {
+      "scene_id": 3,
+      "video_prompt": "business owner pausing from typing on a sleek keyboard, looking up with a confident smile at rising social media metrics on a laptop screen showing upward trending charts in purple and white, coffee cup beside keyboard, bright inspiring office with standing desk, cityscape visible through floor-to-ceiling windows, warm golden hour sunlight casting soft shadows, lifestyle photography, close-up on hands then medium shot on face, shallow depth of field focusing on the smiling face, professional photography, 4K, sharp focus, commercial quality, brand colors: a notebook with #1A1AFF blue cover and a lavender #F5F5FF pen holder",
+      "on_screen_text": "Save Hours. Grow Faster.",
+      "duration_seconds": 10
+    },
+    {
+      "scene_id": 4,
+      "video_prompt": "happy diverse group of three business owners celebrating, standing around a sleek modern desk showing a large 'Get Started' button in brand blue #1A1AFF on a clean white screen, confetti particles in brand colors #1A1AFF and #F5F5FF floating gently, bright inviting office lounge with minimalist white furniture, soft diffused lighting creating a confident atmosphere, medium shot with shallow depth of field on the button while the owners are softly blurred in the background, professional photography, 4K, sharp focus, commercial quality",
+      "on_screen_text": "Start Free Trial - zunosync.com",
+      "duration_seconds": 8
+    }
+  ]
+}
