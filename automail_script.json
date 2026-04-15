@@ -1,0 +1,47 @@
+{
+  "product_name": "AutoMail",
+  "tagline": "Write Less. Connect More. Grow Faster.",
+  "target_audience": "Small business owners, entrepreneurs, startups",
+  "total_duration_seconds": 30,
+  "brand_colors": ["#FF6B35", "#2D3142", "#FFFFFF"],
+  "cta": "Start Free at AutoMail.ai",
+  "tone": "professional, emotional, inspiring, premium",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "label": "HOOK",
+      "duration_seconds": 5,
+      "voiceover": "You built something great. But no one's opening your emails.",
+      "on_screen_text": "Your emails go unread.",
+      "effect": "zoom_in",
+      "visual_description": "Tired female entrepreneur late at night, cluttered desk, cold blue screen glow, defeated expression, 9% open rate visible on screen"
+    },
+    {
+      "scene_number": 2,
+      "label": "SOLUTION",
+      "duration_seconds": 9,
+      "voiceover": "AutoMail uses AI to write personalized campaigns that actually get read — in minutes.",
+      "on_screen_text": "AI emails. Written for you.",
+      "effect": "pan_right",
+      "visual_description": "Amazed entrepreneur discovering AutoMail interface, dark navy UI with orange accents, golden office light, expression of relief and excitement"
+    },
+    {
+      "scene_number": 3,
+      "label": "BENEFITS",
+      "duration_seconds": 11,
+      "voiceover": "Three times higher open rates. Five hours saved every week. Real results — zero writing skills needed.",
+      "on_screen_text": "3x opens. 5hrs saved. Zero effort.",
+      "effect": "zoom_out",
+      "visual_description": "Diverse team celebrating over analytics dashboard showing 3x email open rate spike, city skyline office, warm golden light, arms raised in victory"
+    },
+    {
+      "scene_number": 4,
+      "label": "CTA",
+      "duration_seconds": 5,
+      "voiceover": "Start free today. Your next campaign writes itself.",
+      "on_screen_text": "Start Free. AutoMail.ai",
+      "effect": "slow_zoom_in",
+      "visual_description": "Sleek laptop on marble desk showing AutoMail app with glowing orange CTA button, floating email particles, premium dark studio background"
+    }
+  ]
+}
