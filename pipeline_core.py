@@ -10,10 +10,14 @@ import requests
 
 # ── FFmpeg ───────────────────────────────────────────────────────────
 def _find_ff(name):
-    """Locate ffmpeg/ffprobe: env var → shutil.which → Windows WinGet path."""
+    """Locate ffmpeg/ffprobe: env var → local bin/ → shutil.which → Windows WinGet path."""
     env_key = "FFMPEG_PATH" if name == "ffmpeg" else "FFPROBE_PATH"
     if os.environ.get(env_key):
         return os.environ[env_key]
+    # Local bin/ directory (downloaded by build.sh on Render)
+    local = Path(__file__).parent / "bin" / name
+    if local.exists():
+        return str(local)
     found = shutil.which(name)
     if found:
         return found

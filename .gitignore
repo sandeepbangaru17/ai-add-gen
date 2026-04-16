@@ -31,3 +31,6 @@ assets/music/
 # OS files
 .DS_Store
 Thumbs.db
+
+# FFmpeg static binaries (downloaded at build time)
+bin/
