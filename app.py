@@ -33,6 +33,47 @@ BRAND_PRESETS = {
 }
 
 
+# ── Helpers ──────────────────────────────────────────────────────────
+
+def _load_meta(job_id: str) -> dict:
+    """Load meta.json for a job, backfilling from script.json for old jobs."""
+    job_dir  = JOBS_DIR / job_id
+    meta_path = job_dir / "meta.json"
+
+    if meta_path.exists():
+        with open(meta_path) as f:
+            return json.load(f)
+
+    # Backfill meta for old jobs that pre-date meta.json
+    meta = {
+        "job_id":     job_id,
+        "product":    "",
+        "tagline":    "",
+        "website":    "",
+        "preset":     "purple",
+        "preview":    ["#7C3AED", "#EC4899"],
+        "created_at": datetime.fromtimestamp((job_dir).stat().st_mtime).strftime("%b %d, %Y · %H:%M"),
+        "status":     "done" if (job_dir / "final.mp4").exists() else "processing",
+    }
+    script_path = job_dir / "script.json"
+    if script_path.exists():
+        with open(script_path) as f:
+            script = json.load(f)
+        # Try to extract product name from CTA scene voiceover or on_screen_text
+        for sc in script.get("scenes", []):
+            if sc.get("label") == "CTA":
+                text = sc.get("on_screen_text", "")
+                parts = text.split(".")
+                meta["website"] = parts[-1].strip() if parts else ""
+                meta["product"] = parts[0].strip() if parts else job_id
+                break
+
+    # Save for next time
+    with open(meta_path, "w") as f:
+        json.dump(meta, f)
+    return meta
+
+
 # ── Routes ────────────────────────────────────────────────────────────
 
 @app.route("/")
@@ -109,11 +150,10 @@ def generate():
 def job_page(job_id):
     """Single page: shows progress then reveals video inline when done."""
     job_dir = JOBS_DIR / job_id
-    meta = {}
-    if (job_dir / "meta.json").exists():
-        with open(job_dir / "meta.json") as f:
-            meta = json.load(f)
-    job   = _jobs.get(job_id, {})
+    if not job_dir.exists():
+        abort(404)
+    meta = _load_meta(job_id)
+    job  = _jobs.get(job_id, {})
     brand = job.get("brand", {
         "name":    meta.get("product", ""),
         "tagline": meta.get("tagline", ""),
@@ -164,16 +204,16 @@ def progress_stream(job_id):
 def videos():
     jobs = []
     for d in sorted(JOBS_DIR.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True):
-        meta_path = d / "meta.json"
-        if not meta_path.exists():
+        if not d.is_dir():
             continue
-        with open(meta_path) as f:
-            meta = json.load(f)
-        # Check if final video exists
-        final = d / "final.mp4"
-        meta["has_video"] = final.exists()
-        meta["size_mb"]   = round(final.stat().st_size / 1_048_576, 1) if final.exists() else 0
-        jobs.append(meta)
+        try:
+            meta = _load_meta(d.name)
+            final = d / "final.mp4"
+            meta["has_video"] = final.exists()
+            meta["size_mb"]   = round(final.stat().st_size / 1_048_576, 1) if final.exists() else 0
+            jobs.append(meta)
+        except Exception:
+            continue
     return render_template("videos.html", jobs=jobs)
 
 

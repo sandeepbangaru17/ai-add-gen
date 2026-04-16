@@ -450,4 +450,11 @@ def run_pipeline(job_dir: Path, script: dict, brand: dict):
     slug = brand["name"].lower().replace(" ", "_")
     formats = export_formats(final, job_dir, slug)
 
+    # Clean up temp files — keep only finals
+    for tmp in [job_dir / "clips.txt", job_dir / "merged.mp4", job_dir / "with_audio.mp4"]:
+        tmp.unlink(missing_ok=True)
+    shutil.rmtree(raw_dir,   ignore_errors=True)
+    shutil.rmtree(proc_dir,  ignore_errors=True)
+    shutil.rmtree(voice_dir, ignore_errors=True)
+
     yield f"DONE|{json.dumps(formats)}"
