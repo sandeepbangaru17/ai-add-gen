@@ -1,55 +1,73 @@
-# AI Ad Creation Pipeline
+<div align="center">
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-  <img src="https://img.shields.io/badge/Pexels-Real%20Video%20Clips-green.svg" alt="Pexels">
-  <img src="https://img.shields.io/badge/TTS-AriaNeural-red.svg" alt="edge-tts">
-  <img src="https://img.shields.io/badge/Pollinations-Flux%20AI%20Images-orange.svg" alt="Pollinations">
-  <img src="https://img.shields.io/badge/Kaggle-Free%20T4%20GPU-20BEFF.svg" alt="Kaggle">
+# AI Video Ad Generator
+
+<p>
+  <a href="https://ai-add-gen.onrender.com" target="_blank">
+    <img src="https://img.shields.io/badge/🚀%20Live%20Demo-ai--add--gen.onrender.com-6366f1?style=for-the-badge" alt="Live Demo">
+  </a>
 </p>
 
-<p align="center">
-  <strong>Create professional 30-second video advertisements in minutes using AI + real stock footage</strong><br>
-  Free · No credit card required · No video editing skills needed
+<p>
+  <img src="https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Flask-3.0-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask">
+  <img src="https://img.shields.io/badge/FFmpeg-grey?style=flat-square&logo=ffmpeg&logoColor=white" alt="FFmpeg">
+  <img src="https://img.shields.io/badge/Groq-LLaMA%203.3%2070B-F55036?style=flat-square" alt="Groq">
+  <img src="https://img.shields.io/badge/Pexels-4K%20Stock%20Footage-05A081?style=flat-square" alt="Pexels">
+  <img src="https://img.shields.io/badge/Edge%20TTS-8%20Voices-0078D4?style=flat-square&logo=microsoft&logoColor=white" alt="TTS">
+  <img src="https://img.shields.io/badge/License-MIT-22c55e?style=flat-square" alt="License">
 </p>
 
----
+**Generate a broadcast-ready 30-second product ad in minutes.**  
+Enter a URL — AI writes the script, finds cinematic footage, adds a professional voiceover, and exports in 3 formats. Automatically.
 
-## Demo Video
+[**→ Try it live**](https://ai-add-gen.onrender.com)
 
-### Lead — AutoMail Ad (Real Pexels Video Clips)
-
-> `demo/automail_pexels_premium.mp4` — Real cinematic 4K footage, AriaNeural voiceover, premium text overlays
-
-**4 scenes · 30 seconds · Multi-format export (16:9, 9:16, 1:1)**
+</div>
 
 ---
 
-## Pipeline Versions
+## What It Does
 
-| Version | Script | Approach |
-|---------|--------|----------|
-| **v1** | `automail_ultra_premium.py` | AI images (Pollinations Flux) + FFmpeg Ken Burns |
-| **v2** | `automail_premium_v2.py` | AI images + PIL frame-by-frame Ken Burns (no blur) |
-| **v3 (Lead)** | `automail_pexels_video.py` | **Real Pexels 4K video clips** + live frame overlay |
-| **v4 (Free GPU)** | `automail_wan21_kaggle.ipynb` | **Stable Video Diffusion** on Kaggle free T4 GPU |
-
----
-
-## AutoMail Ad — 4-Scene Structure
-
-| Scene | Duration | Label | Clip | Key Text |
-|-------|----------|-------|------|----------|
-| 1 | 5s | **HOOK** | Businesswoman stressed at laptop, dark room | "Your emails go unread." |
-| 2 | 9s | **SOLUTION** | Woman smiling at laptop, sunny office | "AI emails. Written for you." |
-| 3 | 11s | **BENEFITS** | Team reviewing growth charts, modern office | "3x opens. 5hrs saved. Zero effort." |
-| 4 | 5s | **CTA** | Laptop glowing, dark studio spotlight | "Start Free. AutoMail.ai" |
-| **Total** | **30s** | | | |
+1. **Scrapes your website** — extracts title, tagline, headings, and product copy
+2. **Writes a 4-scene script** — Hook → Solution → Benefits → CTA using Groq LLaMA 3.3 70B
+3. **Finds cinematic footage** — searches Pexels for the best matching HD/4K clips per scene
+4. **Burns premium overlays** — per-frame text rendering with your brand colors using Pillow
+5. **Generates a voiceover** — choose from 8 neural voices (US, UK, AU accents)
+6. **Exports 3 formats** — 16:9 (YouTube), 9:16 (Reels/TikTok), 1:1 (Instagram)
 
 ---
 
-## Quick Start
+## Live Demo
+
+**[https://ai-add-gen.onrender.com](https://ai-add-gen.onrender.com)**
+
+| Page | Description |
+|------|-------------|
+| `/` | Product form — name, URL, brand color, voice |
+| `/job/<id>` | Real-time progress → inline video reveal |
+| `/videos` | Gallery of all generated ads |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Web framework** | Flask 3 + Gunicorn |
+| **Script generation** | Groq API — LLaMA 3.3 70B Versatile |
+| **Stock footage** | Pexels API — HD/4K cinematic clips |
+| **Video processing** | FFmpeg — trim, concat, mix, export |
+| **Text overlays** | Pillow — per-frame compositing pipeline |
+| **Voiceover** | Microsoft Edge TTS — 8 neural voices |
+| **Website scraping** | BeautifulSoup4 |
+| **Real-time progress** | Server-Sent Events (SSE) |
+| **Fonts** | Inter (bundled) |
+| **Deployment** | Render (static FFmpeg binary via build.sh) |
+
+---
+
+## Quick Start (Local)
 
 ### 1. Clone
 
@@ -58,201 +76,184 @@ git clone https://github.com/sandeepbangaru17/ai-add-gen.git
 cd ai-add-gen
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
-pip install numpy
 ```
 
-### 3. Get Free API Keys
+> **FFmpeg** must be installed separately:
+> - **Windows:** `winget install Gyan.FFmpeg`
+> - **Mac:** `brew install ffmpeg`
+> - **Linux:** `sudo apt install ffmpeg`
 
-| Service | Free Tier | Sign Up |
-|---------|-----------|---------|
-| **Pexels** | 200 req/hr | [pexels.com/api](https://www.pexels.com/api/) |
-| **Groq** | 30 req/min | [console.groq.com](https://console.groq.com/keys) |
+### 3. Set environment variables
 
-> **Pollinations AI** and **edge-tts** require no API keys.
-
-### 4. Configure Environment
+Create a `.env` file:
 
 ```env
-PEXELS_API_KEY=your_pexels_key
 GROQ_API_KEY=your_groq_key
+PEXELS_API_KEY=your_pexels_key
 ```
 
-### 5. Run
+| Service | Free Tier | Link |
+|---------|-----------|------|
+| **Groq** | 30 req/min, free | [console.groq.com](https://console.groq.com/keys) |
+| **Pexels** | 200 req/hr, free | [pexels.com/api](https://www.pexels.com/api/) |
+
+### 4. Run
 
 ```bash
-# Lead pipeline — Real Pexels cinematic footage (recommended)
-python automail_pexels_video.py
+python app.py
+```
 
-# AI image + Ken Burns — PIL frame-by-frame (no blur)
-python automail_premium_v2.py
+Open [http://localhost:5000](http://localhost:5000)
+
+---
+
+## How the Pipeline Works
+
+```
+URL / Product Name
+       │
+       ▼
+┌─────────────────┐
+│  Script Writer  │  Groq LLaMA 3.3 → 4-scene JSON script
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Pexels Search  │  Scene-specific queries → best HD/4K clip
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Trim & Overlay │  FFmpeg trim → PIL per-frame text burn
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Voiceover     │  Edge TTS → merged MP3
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│    Assemble     │  Concat clips + mix audio → final.mp4
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Export Formats │  16:9 · 9:16 · 1:1
+└─────────────────┘
 ```
 
 ---
 
-## How the Pexels Pipeline Works
+## Scene Structure
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│              PEXELS REAL VIDEO PIPELINE (v3)                    │
-├──────────────┬─────────────────────────────────────────────────┤
-│  Step        │  What happens                                   │
-├──────────────┼─────────────────────────────────────────────────┤
-│ 1. Search    │ Query Pexels API with scene-specific keywords   │
-│ 2. Download  │ Fetch best HD/4K clip for each scene           │
-│ 3. Trim      │ Cut clip to exact scene duration (FFmpeg)       │
-│ 4. Overlay   │ Burn premium text frame-by-frame via PIL pipe   │
-│ 5. Voiceover │ AriaNeural TTS for all 4 scenes                │
-│ 6. Assemble  │ Concatenate clips + mix padded audio            │
-│ 7. Export    │ Output 16:9 · 9:16 · 1:1 formats               │
-└──────────────┴─────────────────────────────────────────────────┘
-```
-
-### Scene Text Layouts
-
-| Scene | Layout |
-|-------|--------|
-| **HOOK** | Dark overlay · Centered headline · Orange underline · Brand strip |
-| **SOLUTION** | Gradient bar · Large orange headline · White sub-text · Logo badge |
-| **BENEFITS** | 3-column metrics (3x · 5hrs · Zero) in orange with dividers |
-| **CTA** | Full dark overlay · Brand name · Orange CTA button · URL |
+| Scene | Duration | Purpose | Overlay Style |
+|-------|----------|---------|---------------|
+| **1 — Hook** | 5s | Grab attention | Dark overlay · centered headline · brand strip |
+| **2 — Solution** | 9s | Present the product | Gradient bar · large headline · logo badge |
+| **3 — Benefits** | 11s | Show key metrics | 3-column stats with dividers |
+| **4 — CTA** | 5s | Drive action | Full dark overlay · CTA button · website URL |
 
 ---
 
-## Kaggle Free GPU Pipeline (v4)
+## Voice Options
 
-For true AI text-to-video (no stock footage), use the Kaggle notebook on a free T4 GPU:
-
-1. Open `automail_wan21_kaggle.ipynb` on [Kaggle](https://www.kaggle.com)
-2. Set **Settings → Accelerator → GPU T4 x1**
-3. Run all cells — generates 4 AI video clips via Pollinations Flux + Stable Video Diffusion
-4. Download `automail_clips.zip` from the Output panel
-5. Extract to `output/wan21_raw/` and run `python automail_wan21_local.py`
+| Voice | Accent | Style |
+|-------|--------|-------|
+| Aria | 🇺🇸 US | Warm & Conversational |
+| Jenny | 🇺🇸 US | Upbeat & Energetic |
+| Sara | 🇺🇸 US | Calm & Professional |
+| Guy | 🇺🇸 US | Confident & Clear |
+| Tony | 🇺🇸 US | Bold & Authoritative |
+| Ryan | 🇬🇧 UK | Sophisticated British |
+| Sonia | 🇬🇧 UK | Elegant British |
+| Natasha | 🇦🇺 AU | Fresh & Approachable |
 
 ---
 
 ## Project Structure
 
 ```
-ai-ad-gen/
-│
-├── automail_pexels_video.py    # v3: Pexels real footage pipeline (lead)
-├── automail_premium_v2.py      # v2: PIL Ken Burns, AI images
-├── automail_ultra_premium.py   # v1: FFmpeg Ken Burns, AI images
-├── automail_wan21_kaggle.ipynb # v4: Kaggle T4 GPU — Flux + SVD text-to-video
-├── automail_wan21_local.py     # v4 local assembly for Kaggle-generated clips
-├── automail_seedance.py        # Seedance 2 via kie.ai API
-├── automail_t2v.py             # ZeroScope T2V via HuggingFace
-├── automail_script.json        # AutoMail 30s ad script (4 scenes)
-│
-├── pipeline.py                 # Original modular pipeline
-├── config.py                   # Configuration & API keys
-├── llm_client.py               # Groq LLM client
-│
-├── agents/                     # Modular AI agents
-│   ├── brief_agent.py
-│   ├── script_agent.py
-│   ├── voice_agent.py
-│   ├── prompt_agent.py
-│   ├── video_agent.py
-│   ├── stitch_agent.py
-│   ├── post_agent.py
-│   └── export_agent.py
-│
-├── schemas/                    # JSON validation schemas
-│
-├── demo/
-│   └── automail_pexels_premium.mp4   # Lead 30s ad
-│
-├── output/                     # Generated on run
-│   ├── automail_pexels_final.mp4     # Master 16:9
-│   ├── automail_pexels_16x9.mp4      # YouTube / LinkedIn
-│   ├── automail_pexels_9x16.mp4      # Instagram Reels / TikTok
-│   └── automail_pexels_1x1.mp4       # Instagram Feed / Facebook
-│
+ai-add-gen/
+├── app.py                  # Flask app — all routes
+├── pipeline_core.py        # Video pipeline — yields SSE progress
+├── script_generator.py     # Groq LLM script generation
+├── build.sh                # Render build — downloads static FFmpeg
+├── nixpacks.toml           # Railway config (alternative deploy)
+├── Procfile                # Gunicorn start command
 ├── requirements.txt
-└── README.md
+│
+├── templates/
+│   ├── base.html           # Navbar, theme toggle
+│   ├── index.html          # Product form
+│   ├── job.html            # Progress + inline video reveal
+│   └── videos.html         # Gallery
+│
+├── static/
+│   ├── css/style.css       # Premium design system
+│   ├── js/main.js          # Theme toggle
+│   └── fonts/              # Bundled Inter font
+│
+└── jobs/                   # Generated per job (gitignored)
+    └── <job_id>/
+        ├── meta.json
+        ├── script.json
+        ├── final.mp4
+        ├── <slug>_16x9.mp4
+        ├── <slug>_9x16.mp4
+        └── <slug>_1x1.mp4
 ```
 
 ---
 
-## Output Files
+## Deployment (Render)
 
-```
-output/
-├── automail_pexels_final.mp4   # Master 1920x1080 16:9 (30s)
-├── automail_pexels_16x9.mp4    # YouTube / LinkedIn
-├── automail_pexels_9x16.mp4    # Instagram Reels / TikTok
-└── automail_pexels_1x1.mp4     # Instagram Feed / Facebook
-```
+1. Fork / clone this repo to GitHub
+2. Create a new **Web Service** on [render.com](https://render.com)
+3. Connect your repo and set:
 
----
+| Setting | Value |
+|---------|-------|
+| **Build Command** | `bash build.sh` |
+| **Start Command** | `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 300` |
 
-## Tools & Technologies
+4. Add environment variables:
+   - `GROQ_API_KEY`
+   - `PEXELS_API_KEY`
 
-| Tool | Purpose | Cost |
-|------|---------|------|
-| **Pexels API** | Real cinematic stock footage | Free (200 req/hr) |
-| **Pollinations AI** | AI image generation | Completely free |
-| **edge-tts AriaNeural** | Neural voiceover | Completely free |
-| **Stable Video Diffusion** | Image-to-video on Kaggle T4 | Free GPU |
-| **FFmpeg** | Video processing, trim, export | Open source |
-| **Pillow** | Per-frame text overlays | Open source |
-| **Groq API** | LLM script generation | Free tier |
+5. Deploy — done.
+
+> `build.sh` automatically downloads a static FFmpeg binary — no sudo or system packages needed.
 
 ---
 
 ## Performance
 
-| Task | Time |
+| Step | Time |
 |------|------|
-| Pexels search + download (4 clips) | ~1-2 min |
-| Frame-by-frame overlay (720 frames) | ~2-3 min |
-| Voiceover generation | ~15 sec |
-| Assembly + export | ~30 sec |
-| **Total** | **~4-5 min** |
-
----
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Pexels returns no results | Fallback queries auto-tried for each scene |
-| FFmpeg not found | `winget install Gyan.FFmpeg` |
-| `numpy` missing | `pip install numpy` |
-| Video duration mismatch | Audio is padded with silence to match video |
+| Script generation | ~5s |
+| Pexels search + download (4 clips) | ~1–2 min |
+| Frame-by-frame overlay (720 frames) | ~2–3 min |
+| Voiceover generation | ~15s |
+| Assembly + export (3 formats) | ~30s |
+| **Total** | **~4–6 min** |
 
 ---
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE) for details.
 
 ---
 
-## Acknowledgments
+<div align="center">
 
-- **Pexels** — Free HD/4K stock footage with generous API
-- **Microsoft Edge TTS** — AriaNeural neural voice
-- **Pollinations AI** — Free Flux image generation
-- **Stability AI** — Stable Video Diffusion
-- **Groq** — Fast free LLM inference
-- **FFmpeg** — Industry-standard video processing
+Built with Groq · Pexels · Edge TTS · FFmpeg · Flask
 
----
+[Live Demo](https://ai-add-gen.onrender.com) · [Report Bug](https://github.com/sandeepbangaru17/ai-add-gen/issues) · [Request Feature](https://github.com/sandeepbangaru17/ai-add-gen/discussions)
 
-<p align="center">
-  <strong>Built to understand the full AI video ad creation pipeline — from script to final export</strong>
-</p>
-
-<p align="center">
-  <a href="https://github.com/sandeepbangaru17/ai-add-gen">Star this repo</a>
-  ·
-  <a href="https://github.com/sandeepbangaru17/ai-add-gen/issues">Report Bug</a>
-  ·
-  <a href="https://github.com/sandeepbangaru17/ai-add-gen/discussions">Request Feature</a>
-</p>
+</div>
