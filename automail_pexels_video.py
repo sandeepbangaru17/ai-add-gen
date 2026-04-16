@@ -99,11 +99,11 @@ SCRIPT = {
             "voiceover": "Three times higher open rates. Five hours saved every week. Real results — zero writing skills needed.",
             "on_screen_text": "3x opens. 5hrs saved. Zero effort.",
             "pexels_queries": [
-                "diverse business team celebrating success modern office city view",
-                "business team high five office win celebration",
-                "happy colleagues celebrating achievement office",
-                "team success celebration startup office",
-                "business people cheering office success growth",
+                "business team reviewing growth charts results modern office",
+                "professionals looking at analytics dashboard laptop meeting",
+                "business people smiling meeting table office presentation",
+                "team reviewing email marketing results office laptop",
+                "colleagues looking at screen positive results office",
             ],
         },
         {
