@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "WebFetch(domain:fal.ai)",
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "Bash(pip install:*)"
+    ]
+  }
+}
