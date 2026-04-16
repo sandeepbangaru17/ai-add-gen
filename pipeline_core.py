@@ -3,29 +3,42 @@ pipeline_core.py — Abstract video generation pipeline.
 Accepts any product script dict and yields progress strings via a queue.
 """
 
-import json, time, shutil, subprocess, asyncio
+import os, json, time, shutil, subprocess, asyncio
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import requests
 
 # ── FFmpeg ───────────────────────────────────────────────────────────
-_FF = (
-    r"C:\Users\LENOVO\AppData\Local\Microsoft\WinGet\Packages"
-    r"\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe"
-    r"\ffmpeg-8.1-full_build\bin"
-)
-FFMPEG  = str(Path(_FF) / "ffmpeg.exe")
-FFPROBE = str(Path(_FF) / "ffprobe.exe")
+def _find_ff(name):
+    """Locate ffmpeg/ffprobe: env var → shutil.which → Windows WinGet path."""
+    env_key = "FFMPEG_PATH" if name == "ffmpeg" else "FFPROBE_PATH"
+    if os.environ.get(env_key):
+        return os.environ[env_key]
+    found = shutil.which(name)
+    if found:
+        return found
+    # Fallback: Windows WinGet install path
+    _win = (
+        r"C:\Users\LENOVO\AppData\Local\Microsoft\WinGet\Packages"
+        r"\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe"
+        r"\ffmpeg-8.1-full_build\bin"
+    )
+    return str(Path(_win) / f"{name}.exe")
 
-PEXELS_KEY     = "Bv2EXlrvW3bVo8ldVRaSAcaG3Bf5aHZrrL7cLcF9ZKKO4kW6Rtsmad13"
+FFMPEG  = _find_ff("ffmpeg")
+FFPROBE = _find_ff("ffprobe")
+
+PEXELS_KEY     = os.environ.get("PEXELS_API_KEY", "")
 PEXELS_HEADERS = {"Authorization": PEXELS_KEY}
 
 OUT_W, OUT_H = 1920, 1080
 FPS = 24
 
-SEGOE_BLACK = "C:/Windows/Fonts/seguibl.ttf"
-SEGOE_BOLD  = "C:/Windows/Fonts/segoeuib.ttf"
-SEGOE_REG   = "C:/Windows/Fonts/segoeui.ttf"
+# ── Fonts ─────────────────────────────────────────────────────────────
+_FONTS_DIR = Path(__file__).parent / "static" / "fonts"
+SEGOE_BLACK = str(_FONTS_DIR / "Inter-Black.ttf")
+SEGOE_BOLD  = str(_FONTS_DIR / "Inter-Bold.ttf")
+SEGOE_REG   = str(_FONTS_DIR / "Inter-Regular.ttf")
 
 WHITE = (255, 255, 255)
 GRAY  = (200, 200, 210)
