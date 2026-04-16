@@ -138,7 +138,7 @@ document.getElementById("genForm").addEventListener("submit", async e => {
       txt.textContent = "Generate Video";
       return;
     }
-    window.location.href = `/progress/${json.job_id}`;
+    window.location.href = `/job/${json.job_id}`;
   } catch (ex) {
     err.textContent = "Something went wrong. Please try again.";
     err.style.display = "block";

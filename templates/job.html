@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% block title %}{{ brand.name or 'Generating' }} — AI Video Generator{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:48px;padding-bottom:80px">
+
+  <!-- ── PROGRESS SECTION ─────────────────────────────────── -->
+  <div id="progressSection">
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:44px">
+      <div class="hero-badge" style="margin-bottom:16px">
+        <span class="dot"></span>
+        <span id="statusLabel">Generating your video</span>
+      </div>
+      <h1 style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:10px">
+        {{ brand.name or 'Your Product' }}
+      </h1>
+      <p style="color:var(--text-2);font-size:0.95rem">{{ brand.tagline or '' }}</p>
+    </div>
+
+    <!-- Progress card -->
+    <div class="card" style="max-width:680px;margin:0 auto;padding:40px">
+
+      <!-- Overall bar -->
+      <div style="margin-bottom:36px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:0.85rem;font-weight:600;color:var(--text-2)">OVERALL PROGRESS</span>
+          <span style="font-size:0.85rem;font-weight:700;color:var(--accent)" id="pctLabel">0%</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="steps" id="stepList">
+
+        <div class="step" id="step-script">
+          <div class="step-icon" id="icon-script">📝</div>
+          <div class="step-content">
+            <div class="step-label">Analysing & writing script</div>
+            <div class="step-detail" id="detail-script">Scraping website · AI script generation</div>
+          </div>
+          <div class="step-badge" id="badge-script"></div>
+        </div>
+
+        <div class="step" id="step-1">
+          <div class="step-icon" id="icon-1">🎥</div>
+          <div class="step-content">
+            <div class="step-label">Scene 1 — Hook</div>
+            <div class="step-detail" id="detail-1">Finding best matching clip</div>
+          </div>
+          <div class="step-badge" id="badge-1"></div>
+        </div>
+
+        <div class="step" id="step-2">
+          <div class="step-icon" id="icon-2">🎥</div>
+          <div class="step-content">
+            <div class="step-label">Scene 2 — Solution</div>
+            <div class="step-detail" id="detail-2">Finding best matching clip</div>
+          </div>
+          <div class="step-badge" id="badge-2"></div>
+        </div>
+
+        <div class="step" id="step-3">
+          <div class="step-icon" id="icon-3">🎥</div>
+          <div class="step-content">
+            <div class="step-label">Scene 3 — Benefits</div>
+            <div class="step-detail" id="detail-3">Finding best matching clip</div>
+          </div>
+          <div class="step-badge" id="badge-3"></div>
+        </div>
+
+        <div class="step" id="step-4">
+          <div class="step-icon" id="icon-4">🎥</div>
+          <div class="step-content">
+            <div class="step-label">Scene 4 — CTA</div>
+            <div class="step-detail" id="detail-4">Finding best matching clip</div>
+          </div>
+          <div class="step-badge" id="badge-4"></div>
+        </div>
+
+        <div class="step" id="step-voice">
+          <div class="step-icon" id="icon-voice">🎙️</div>
+          <div class="step-content">
+            <div class="step-label">Voiceover</div>
+            <div class="step-detail" id="detail-voice">AriaNeural · Professional TTS</div>
+          </div>
+          <div class="step-badge" id="badge-voice"></div>
+        </div>
+
+        <div class="step" id="step-assemble">
+          <div class="step-icon" id="icon-assemble">🎬</div>
+          <div class="step-content">
+            <div class="step-label">Assembling &amp; exporting</div>
+            <div class="step-detail" id="detail-assemble">Concat · Mix audio · 3 formats</div>
+          </div>
+          <div class="step-badge" id="badge-assemble"></div>
+        </div>
+
+      </div>
+
+      <!-- Live log -->
+      <div style="margin-top:24px">
+        <div style="font-size:0.75rem;font-weight:600;color:var(--text-3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px">Live Log</div>
+        <div class="log-box" id="logBox">Initialising…</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── RESULT SECTION (hidden until done) ───────────────── -->
+  <div id="resultSection" style="display:none;opacity:0;transition:opacity 0.6s ease">
+
+    <!-- Success header -->
+    <div style="text-align:center;margin-bottom:44px">
+      <div class="hero-badge" style="margin-bottom:16px;border-color:rgba(16,185,129,0.3);color:#6ee7b7">
+        <span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block"></span>
+        Video Ready
+      </div>
+      <h1 style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:10px">
+        {{ brand.name or 'Your Video' }} — 30s Ad
+      </h1>
+      <p style="color:var(--text-2)">{{ brand.tagline or '' }}</p>
+    </div>
+
+    <!-- Video player card -->
+    <div class="card" style="overflow:hidden;margin-bottom:20px">
+      <video id="videoPlayer" controls autoplay muted loop style="width:100%;display:block;aspect-ratio:16/9;background:#000">
+        Your browser does not support video.
+      </video>
+      <div style="padding:20px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-weight:700;font-size:1rem">Master 16:9 — 1920×1080</div>
+          <div style="font-size:0.82rem;color:var(--text-2);margin-top:2px">30 seconds · H.264 · AAC audio</div>
+        </div>
+        <a id="downloadMaster" href="#" class="btn-outline" style="text-decoration:none">⬇ Download Master</a>
+      </div>
+    </div>
+
+    <!-- Format cards -->
+    <div style="font-size:0.85rem;font-weight:600;color:var(--text-2);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:14px">Export Formats</div>
+    <div class="formats-grid" style="margin-bottom:28px" id="formatsGrid">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- Action row -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="/" class="btn-outline" style="flex:1;min-width:160px;justify-content:center;text-decoration:none">🎬 Generate Another</a>
+      <a href="/videos" class="btn-outline" style="flex:1;min-width:160px;justify-content:center;text-decoration:none">📂 My Videos</a>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const JOB_ID  = "{{ job_id }}";
+const FORMATS_META = {
+  "16x9": { icon: "📺", label: "Widescreen 16:9", desc: "YouTube · LinkedIn · Website" },
+  "9x16": { icon: "📱", label: "Vertical 9:16",   desc: "Reels · TikTok · Shorts" },
+  "1x1":  { icon: "⬛", label: "Square 1:1",      desc: "Instagram · Facebook" },
+};
+
+const STEP_PCT = {
+  "script": 8,
+  "1-search": 16, "1-done": 26,
+  "2-search": 32, "2-done": 45,
+  "3-search": 50, "3-done": 63,
+  "4-search": 68, "4-done": 76,
+  "voice":   82,
+  "assemble":92,
+  "done":   100,
+};
+
+let currentSceneNum = 0;
+
+function setBar(pct) {
+  document.getElementById("progressBar").style.width = pct + "%";
+  document.getElementById("pctLabel").textContent = pct + "%";
+}
+
+function setStepActive(id) {
+  const el = document.getElementById("step-" + id);
+  if (!el) return;
+  el.classList.remove("done");
+  el.classList.add("active");
+}
+
+function setStepDone(id, detail) {
+  const el   = document.getElementById("step-" + id);
+  const icon = document.getElementById("icon-" + id);
+  const det  = document.getElementById("detail-" + id);
+  const badge= document.getElementById("badge-" + id);
+  if (!el) return;
+  el.classList.remove("active");
+  el.classList.add("done");
+  if (icon)  icon.textContent = "✅";
+  if (det && detail)  det.textContent = detail;
+  if (badge) { badge.textContent = "Done"; badge.className = "step-badge step-badge-done"; }
+}
+
+function setStepDetail(id, txt) {
+  const el = document.getElementById("detail-" + id);
+  if (el) el.textContent = txt;
+  const badge = document.getElementById("badge-" + id);
+  if (badge) { badge.textContent = "Running"; badge.className = "step-badge step-badge-active"; }
+}
+
+function appendLog(msg) {
+  const box = document.getElementById("logBox");
+  box.textContent += (box.textContent ? "\n" : "") + msg;
+  box.scrollTop = box.scrollHeight;
+}
+
+function showResult(formatsJson) {
+  // Build format cards
+  const grid = document.getElementById("formatsGrid");
+  grid.innerHTML = "";
+  for (const [key, filename] of Object.entries(formatsJson)) {
+    const m = FORMATS_META[key] || { icon: "🎞️", label: key, desc: "" };
+    const card = document.createElement("div");
+    card.className = "card-sm format-card";
+    card.innerHTML = `
+      <div style="font-size:2rem">${m.icon}</div>
+      <div style="font-weight:700;font-size:0.95rem">${m.label}</div>
+      <div style="font-size:0.78rem;color:var(--text-2)">${m.desc}</div>
+      <a href="/download/${JOB_ID}/${filename}"
+         style="display:flex;align-items:center;justify-content:center;width:100%;height:38px;
+                border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+                color:#fff;font-size:0.82rem;font-weight:600;text-decoration:none">
+        ⬇ Download
+      </a>`;
+    grid.appendChild(card);
+  }
+
+  // Set master video src
+  document.getElementById("videoPlayer").src = `/watch/${JOB_ID}/final.mp4`;
+  document.getElementById("downloadMaster").href = `/download/${JOB_ID}/final.mp4`;
+
+  // Swap sections
+  const prog   = document.getElementById("progressSection");
+  const result = document.getElementById("resultSection");
+  prog.style.transition  = "opacity 0.4s ease";
+  prog.style.opacity     = "0";
+  setTimeout(() => {
+    prog.style.display  = "none";
+    result.style.display = "block";
+    document.getElementById("statusLabel").textContent = "Video Ready";
+    requestAnimationFrame(() => { result.style.opacity = "1"; });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 400);
+}
+
+// ── SSE ────────────────────────────────────────────────────
+const es = new EventSource(`/progress/${JOB_ID}`);
+
+es.onmessage = e => {
+  const msg = e.data.trim();
+  if (!msg) return;
+  appendLog(msg);
+
+  // Script step
+  if (msg.includes("Analysing") || msg.includes("Script ready")) {
+    setStepActive("script");
+    setBar(STEP_PCT["script"]);
+  }
+  if (msg.includes("Script ready")) {
+    setStepDone("script", "Script generated");
+  }
+
+  // Scene detection
+  const sceneMatch = msg.match(/\[(\d)\/4\]/);
+  if (sceneMatch) {
+    const n = sceneMatch[1];
+    if (n !== String(currentSceneNum)) {
+      if (currentSceneNum > 0) setStepDone(String(currentSceneNum), "Clip ready");
+      currentSceneNum = parseInt(n);
+      setStepActive(n);
+    }
+    if (msg.includes("Searching"))   { setStepDetail(n, "Searching Pexels..."); setBar(STEP_PCT[n+"-search"]); }
+    if (msg.includes("Found clip"))  { setStepDetail(n, "Downloading clip..."); }
+    if (msg.includes("Trimming"))    { setStepDetail(n, "Trimming to duration..."); }
+    if (msg.includes("Burning"))     { setStepDetail(n, "Rendering text overlay..."); }
+    if (msg.includes("Scene") && msg.includes("done")) {
+      setStepDone(n, "Clip ready");
+      setBar(STEP_PCT[n+"-done"]);
+      currentSceneNum = 0;
+    }
+  }
+
+  if (msg.includes("voiceover") || msg.includes("Voiceover") || msg.includes("[5/6]")) {
+    setStepActive("voice");
+    setBar(STEP_PCT["voice"]);
+  }
+  if (msg.includes("[6/6]") || msg.includes("Assembling") || msg.includes("Exporting")) {
+    setStepDone("voice", "Voiceover done");
+    setStepActive("assemble");
+    setBar(STEP_PCT["assemble"]);
+  }
+
+  if (msg.startsWith("DONE|")) {
+    es.close();
+    setStepDone("assemble", "All formats exported");
+    setBar(100);
+    try {
+      const formats = JSON.parse(msg.slice(5));
+      setTimeout(() => showResult(formats), 600);
+    } catch(ex) { console.error(ex); }
+    return;
+  }
+
+  if (msg.startsWith("ERROR") || msg.startsWith("[ERROR]")) {
+    es.close();
+    document.getElementById("logBox").style.color = "#fca5a5";
+    document.getElementById("statusLabel").textContent = "Something went wrong";
+  }
+};
+
+es.onerror = () => appendLog("[Connection error — please refresh]");
+</script>
+{% endblock %}
