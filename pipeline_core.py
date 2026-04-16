@@ -333,8 +333,7 @@ async def _tts(text, voice, out):
     await edge_tts.Communicate(text, voice).save(str(out))
 
 
-def generate_voiceover(scenes, voice_dir):
-    voice = "en-US-AriaNeural"
+def generate_voiceover(scenes, voice_dir, voice="en-US-AriaNeural"):
     files = []
     for i, sc in enumerate(scenes):
         out = voice_dir / f"scene_{i+1}.mp3"
@@ -440,7 +439,7 @@ def run_pipeline(job_dir: Path, script: dict, brand: dict):
         final_clips.append(proc)
 
     yield "[5/6] Generating voiceover..."
-    audio = generate_voiceover(scenes, voice_dir)
+    audio = generate_voiceover(scenes, voice_dir, brand.get("voice_id", "en-US-AriaNeural"))
 
     yield "[6/6] Assembling final video..."
     final = job_dir / "final.mp4"

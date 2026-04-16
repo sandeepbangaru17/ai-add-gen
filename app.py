@@ -24,6 +24,17 @@ JOBS_DIR.mkdir(exist_ok=True)
 # In-memory job registry  { job_id: { status, queue, brand } }
 _jobs: dict = {}
 
+VOICES = {
+    "aria":   {"name": "Aria",    "id": "en-US-AriaNeural",    "flag": "🇺🇸", "gender": "♀", "style": "Warm & Conversational",    "desc": "Natural, friendly — great for lifestyle & SaaS"},
+    "jenny":  {"name": "Jenny",   "id": "en-US-JennyNeural",   "flag": "🇺🇸", "gender": "♀", "style": "Upbeat & Energetic",        "desc": "Bright and optimistic — perfect for consumer apps"},
+    "sara":   {"name": "Sara",    "id": "en-US-SaraNeural",    "flag": "🇺🇸", "gender": "♀", "style": "Calm & Professional",       "desc": "Clear and polished — ideal for B2B products"},
+    "guy":    {"name": "Guy",     "id": "en-US-GuyNeural",     "flag": "🇺🇸", "gender": "♂", "style": "Confident & Clear",         "desc": "Trustworthy and direct — works for anything"},
+    "tony":   {"name": "Tony",    "id": "en-US-TonyNeural",    "flag": "🇺🇸", "gender": "♂", "style": "Bold & Authoritative",      "desc": "Strong presence — great for high-impact ads"},
+    "ryan":   {"name": "Ryan",    "id": "en-GB-RyanNeural",    "flag": "🇬🇧", "gender": "♂", "style": "Sophisticated British",     "desc": "Premium feel — elevates luxury & tech brands"},
+    "sonia":  {"name": "Sonia",   "id": "en-GB-SoniaNeural",   "flag": "🇬🇧", "gender": "♀", "style": "Elegant British",           "desc": "Refined and articulate — premium brand voice"},
+    "natasha":{"name": "Natasha", "id": "en-AU-NatashaNeural", "flag": "🇦🇺", "gender": "♀", "style": "Fresh & Approachable",      "desc": "Relaxed yet professional — great for startups"},
+}
+
 BRAND_PRESETS = {
     "purple": {"label": "Purple & Pink",   "primary": [124,58,237],  "secondary": [236,72,153],  "preview": ["#7C3AED","#EC4899"]},
     "blue":   {"label": "Blue & Cyan",     "primary": [0,122,255],   "secondary": [0,210,255],   "preview": ["#007AFF","#00D2FF"]},
@@ -78,7 +89,7 @@ def _load_meta(job_id: str) -> dict:
 
 @app.route("/")
 def index():
-    return render_template("index.html", presets=BRAND_PRESETS)
+    return render_template("index.html", presets=BRAND_PRESETS, voices=VOICES)
 
 
 @app.route("/generate", methods=["POST"])
@@ -88,6 +99,7 @@ def generate():
     website_url     = request.form.get("website_url", "").strip()
     brand_preset    = request.form.get("brand_preset", "purple")
     website_display = request.form.get("website_display", "").strip()
+    voice_key       = request.form.get("voice", "aria")
 
     if not product_name:
         return jsonify({"error": "Product name is required"}), 400
@@ -100,9 +112,11 @@ def generate():
             website_url.replace("https://","").replace("http://","").rstrip("/")
             if website_url else f"{product_name.lower().replace(' ','')}.com"
         ),
-        "primary":   tuple(preset["primary"]),
-        "secondary": tuple(preset["secondary"]),
-        "preset":    brand_preset,
+        "primary":    tuple(preset["primary"]),
+        "secondary":  tuple(preset["secondary"]),
+        "preset":     brand_preset,
+        "voice_id":   VOICES.get(voice_key, VOICES["aria"])["id"],
+        "voice_name": VOICES.get(voice_key, VOICES["aria"])["name"],
     }
 
     job_id  = str(uuid.uuid4())[:8]
@@ -118,7 +132,8 @@ def generate():
         "preset":    brand_preset,
         "preview":   preset["preview"],
         "created_at": datetime.now().strftime("%b %d, %Y · %H:%M"),
-        "status":    "processing",
+        "status":     "processing",
+        "voice_name": brand["voice_name"],
     }
     with open(job_dir / "meta.json", "w") as f:
         json.dump(meta, f)

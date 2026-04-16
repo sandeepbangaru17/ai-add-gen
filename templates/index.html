@@ -11,62 +11,76 @@
       AI-Powered · Real Stock Footage · 30 Seconds
     </div>
     <h1>Generate a <span class="grad">Premium Video Ad</span><br>for Any Product</h1>
-    <p>Enter your product URL and we'll write the script, find cinematic clips, and produce a broadcast-ready 30-second ad — automatically.</p>
+    <p>Enter your product URL — we'll write the script, find cinematic clips, add a professional voiceover, and produce a broadcast-ready 30-second ad. Automatically.</p>
   </div>
 
   <!-- Form card -->
   <div class="card form-card">
     <form id="genForm">
 
-      <div class="form-grid">
-
-        <!-- Product name -->
+      <!-- Product details -->
+      <div class="section-label">Product Details</div>
+      <div class="form-grid" style="margin-bottom:28px">
         <div class="form-group">
-          <label>Product Name</label>
+          <label>Product Name <span class="required">*</span></label>
           <input type="text" class="input" name="product_name" id="product_name"
-                 placeholder="e.g. ZunoSync" required>
+                 placeholder="e.g. ZunoSync" required autocomplete="off">
         </div>
-
-        <!-- Website URL -->
         <div class="form-group">
           <label>Website URL</label>
           <input type="url" class="input" name="website_url" id="website_url"
                  placeholder="https://yourproduct.com">
-          <span class="input-hint">Used to auto-generate your script</span>
+          <span class="input-hint">We'll scrape this to auto-generate your script</span>
         </div>
-
-        <!-- Tagline -->
         <div class="form-group">
-          <label>Tagline <span style="opacity:.5;font-weight:400;text-transform:none">(optional)</span></label>
+          <label>Tagline <span class="optional">(optional)</span></label>
           <input type="text" class="input" name="tagline" id="tagline"
                  placeholder="e.g. Create & Schedule 10x Faster">
         </div>
-
-        <!-- Website display -->
         <div class="form-group">
-          <label>Display URL <span style="opacity:.5;font-weight:400;text-transform:none">(shown in video)</span></label>
+          <label>Display URL <span class="optional">(shown in video)</span></label>
           <input type="text" class="input" name="website_display" id="website_display"
                  placeholder="e.g. zunosync.com">
         </div>
-
       </div>
 
-      <!-- Brand color -->
-      <div class="form-group" style="margin-top:24px">
-        <label>Brand Color</label>
+      <!-- Brand Color -->
+      <div class="form-section">
+        <div class="section-label">Brand Color</div>
         <div class="presets">
           {% for key, p in presets.items() %}
           <label class="preset-btn {% if key == 'purple' %}active{% endif %}" data-key="{{ key }}">
             <input type="radio" class="preset-radio" name="brand_preset" value="{{ key }}"
                    {% if key == 'purple' %}checked{% endif %}>
             <span class="preset-swatch"
-                  style="background: linear-gradient(135deg, {{ p.preview[0] }}, {{ p.preview[1] }})"></span>
+                  style="background:linear-gradient(135deg,{{ p.preview[0] }},{{ p.preview[1] }})"></span>
             {{ p.label }}
           </label>
           {% endfor %}
         </div>
       </div>
 
+      <!-- Voice selector -->
+      <div class="form-section">
+        <div class="section-label">Voiceover</div>
+        <div class="voices-grid">
+          {% for key, v in voices.items() %}
+          <label class="voice-card {% if key == 'aria' %}active{% endif %}" data-key="{{ key }}">
+            <input type="radio" class="preset-radio" name="voice" value="{{ key }}"
+                   {% if key == 'aria' %}checked{% endif %}>
+            <div class="voice-top">
+              <span class="voice-flag">{{ v.flag }}</span>
+              <span class="voice-gender">{{ v.gender }}</span>
+              <span class="voice-name">{{ v.name }}</span>
+            </div>
+            <div class="voice-style">{{ v.style }}</div>
+            <div class="voice-desc">{{ v.desc }}</div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Submit -->
       <div style="margin-top:32px">
         <button type="submit" class="btn-primary" id="submitBtn">
           <span id="btnIcon">🎬</span>
@@ -75,36 +89,23 @@
       </div>
 
       <div id="formError" class="alert alert-error" style="margin-top:16px;display:none"></div>
-
     </form>
   </div>
 
-  <!-- Stats strip -->
+  <!-- Stats -->
   <div class="card" style="margin-bottom:64px">
     <div class="stats-strip">
-      <div class="stat">
-        <div class="stat-val">30s</div>
-        <div class="stat-label">Premium Ad</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">4K</div>
-        <div class="stat-label">Stock Footage</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">3</div>
-        <div class="stat-label">Export Formats</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">AI</div>
-        <div class="stat-label">Script & Voice</div>
-      </div>
+      <div class="stat"><div class="stat-val">30s</div><div class="stat-label">Premium Ad</div></div>
+      <div class="stat"><div class="stat-val">4K</div><div class="stat-label">Stock Footage</div></div>
+      <div class="stat"><div class="stat-val">8</div><div class="stat-label">Voice Options</div></div>
+      <div class="stat"><div class="stat-val">3</div><div class="stat-label">Export Formats</div></div>
     </div>
   </div>
 
 </div>
 
 <script>
-// Preset selection
+// Color preset selection
 document.querySelectorAll(".preset-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
@@ -113,7 +114,16 @@ document.querySelectorAll(".preset-btn").forEach(btn => {
   });
 });
 
-// Form submit → POST → redirect to progress
+// Voice card selection
+document.querySelectorAll(".voice-card").forEach(card => {
+  card.addEventListener("click", () => {
+    document.querySelectorAll(".voice-card").forEach(c => c.classList.remove("active"));
+    card.classList.add("active");
+    card.querySelector("input").checked = true;
+  });
+});
+
+// Form submit
 document.getElementById("genForm").addEventListener("submit", async e => {
   e.preventDefault();
   const btn  = document.getElementById("submitBtn");
@@ -126,25 +136,20 @@ document.getElementById("genForm").addEventListener("submit", async e => {
   txt.textContent = "Generating…";
   err.style.display = "none";
 
-  const data = new FormData(e.target);
   try {
-    const res  = await fetch("/generate", { method: "POST", body: data });
+    const res  = await fetch("/generate", { method: "POST", body: new FormData(e.target) });
     const json = await res.json();
     if (json.error) {
       err.textContent = json.error;
       err.style.display = "block";
-      btn.disabled = false;
-      icon.textContent = "🎬";
-      txt.textContent = "Generate Video";
+      btn.disabled = false; icon.textContent = "🎬"; txt.textContent = "Generate Video";
       return;
     }
     window.location.href = `/job/${json.job_id}`;
-  } catch (ex) {
+  } catch {
     err.textContent = "Something went wrong. Please try again.";
     err.style.display = "block";
-    btn.disabled = false;
-    icon.textContent = "🎬";
-    txt.textContent = "Generate Video";
+    btn.disabled = false; icon.textContent = "🎬"; txt.textContent = "Generate Video";
   }
 });
 </script>
