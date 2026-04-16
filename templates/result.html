@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ brand.name }} — Video Ready{% endblock %}
+
+{% block content %}
+<div class="container-wide">
+  <div class="result-wrap">
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:40px">
+      <div class="hero-badge" style="margin-bottom:16px">
+        <span class="dot"></span> Video Ready
+      </div>
+      <h1 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:10px">
+        {{ brand.name }} — 30s Premium Ad
+      </h1>
+      <p style="color:var(--text-2)">{{ brand.tagline }}</p>
+    </div>
+
+    <!-- Video player -->
+    <div class="card video-card" style="margin-bottom:24px">
+      <video controls autoplay muted loop
+             src="{{ url_for('watch', job_id=job_id, filename='final.mp4') }}"
+             poster="">
+        Your browser does not support video.
+      </video>
+      <div class="video-meta">
+        <div>
+          <div class="video-title">{{ brand.name }} — Master 16:9</div>
+          <div class="video-sub">30 seconds · 1920×1080 · H.264</div>
+        </div>
+        <a href="{{ url_for('download', job_id=job_id, filename='final.mp4') }}"
+           class="btn-outline">
+          ⬇ Download Master
+        </a>
+      </div>
+    </div>
+
+    <!-- Format exports -->
+    <div class="section-title">Export Formats</div>
+    <div class="formats-grid" style="margin-bottom:24px">
+
+      <div class="card-sm format-card">
+        <div class="format-icon">📺</div>
+        <div class="format-label">Widescreen 16:9</div>
+        <div class="format-desc">YouTube · LinkedIn · Website</div>
+        {% if "16x9" in formats %}
+        <a href="{{ url_for('download', job_id=job_id, filename=formats['16x9']) }}"
+           class="format-btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none">
+          ⬇ Download
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="card-sm format-card">
+        <div class="format-icon">📱</div>
+        <div class="format-label">Vertical 9:16</div>
+        <div class="format-desc">Instagram Reels · TikTok · Shorts</div>
+        {% if "9x16" in formats %}
+        <a href="{{ url_for('download', job_id=job_id, filename=formats['9x16']) }}"
+           class="format-btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none">
+          ⬇ Download
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="card-sm format-card">
+        <div class="format-icon">⬛</div>
+        <div class="format-label">Square 1:1</div>
+        <div class="format-desc">Instagram Feed · Facebook · Twitter</div>
+        {% if "1x1" in formats %}
+        <a href="{{ url_for('download', job_id=job_id, filename=formats['1x1']) }}"
+           class="format-btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none">
+          ⬇ Download
+        </a>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div class="result-actions" style="margin-bottom:64px">
+      <a href="/" class="btn-outline">🎬 Generate Another</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

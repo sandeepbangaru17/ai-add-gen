@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}AI Video Generator — Create Premium Ads in Minutes{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      AI-Powered · Real Stock Footage · 30 Seconds
+    </div>
+    <h1>Generate a <span class="grad">Premium Video Ad</span><br>for Any Product</h1>
+    <p>Enter your product URL and we'll write the script, find cinematic clips, and produce a broadcast-ready 30-second ad — automatically.</p>
+  </div>
+
+  <!-- Form card -->
+  <div class="card form-card">
+    <form id="genForm">
+
+      <div class="form-grid">
+
+        <!-- Product name -->
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" class="input" name="product_name" id="product_name"
+                 placeholder="e.g. ZunoSync" required>
+        </div>
+
+        <!-- Website URL -->
+        <div class="form-group">
+          <label>Website URL</label>
+          <input type="url" class="input" name="website_url" id="website_url"
+                 placeholder="https://yourproduct.com">
+          <span class="input-hint">Used to auto-generate your script</span>
+        </div>
+
+        <!-- Tagline -->
+        <div class="form-group">
+          <label>Tagline <span style="opacity:.5;font-weight:400;text-transform:none">(optional)</span></label>
+          <input type="text" class="input" name="tagline" id="tagline"
+                 placeholder="e.g. Create & Schedule 10x Faster">
+        </div>
+
+        <!-- Website display -->
+        <div class="form-group">
+          <label>Display URL <span style="opacity:.5;font-weight:400;text-transform:none">(shown in video)</span></label>
+          <input type="text" class="input" name="website_display" id="website_display"
+                 placeholder="e.g. zunosync.com">
+        </div>
+
+      </div>
+
+      <!-- Brand color -->
+      <div class="form-group" style="margin-top:24px">
+        <label>Brand Color</label>
+        <div class="presets">
+          {% for key, p in presets.items() %}
+          <label class="preset-btn {% if key == 'purple' %}active{% endif %}" data-key="{{ key }}">
+            <input type="radio" class="preset-radio" name="brand_preset" value="{{ key }}"
+                   {% if key == 'purple' %}checked{% endif %}>
+            <span class="preset-swatch"
+                  style="background: linear-gradient(135deg, {{ p.preview[0] }}, {{ p.preview[1] }})"></span>
+            {{ p.label }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="margin-top:32px">
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <span id="btnIcon">🎬</span>
+          <span id="btnText">Generate Video</span>
+        </button>
+      </div>
+
+      <div id="formError" class="alert alert-error" style="margin-top:16px;display:none"></div>
+
+    </form>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="card" style="margin-bottom:64px">
+    <div class="stats-strip">
+      <div class="stat">
+        <div class="stat-val">30s</div>
+        <div class="stat-label">Premium Ad</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">4K</div>
+        <div class="stat-label">Stock Footage</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">3</div>
+        <div class="stat-label">Export Formats</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">AI</div>
+        <div class="stat-label">Script & Voice</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Preset selection
+document.querySelectorAll(".preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    btn.querySelector("input").checked = true;
+  });
+});
+
+// Form submit → POST → redirect to progress
+document.getElementById("genForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn  = document.getElementById("submitBtn");
+  const icon = document.getElementById("btnIcon");
+  const txt  = document.getElementById("btnText");
+  const err  = document.getElementById("formError");
+
+  btn.disabled = true;
+  icon.innerHTML = '<span class="spinner"></span>';
+  txt.textContent = "Generating…";
+  err.style.display = "none";
+
+  const data = new FormData(e.target);
+  try {
+    const res  = await fetch("/generate", { method: "POST", body: data });
+    const json = await res.json();
+    if (json.error) {
+      err.textContent = json.error;
+      err.style.display = "block";
+      btn.disabled = false;
+      icon.textContent = "🎬";
+      txt.textContent = "Generate Video";
+      return;
+    }
+    window.location.href = `/progress/${json.job_id}`;
+  } catch (ex) {
+    err.textContent = "Something went wrong. Please try again.";
+    err.style.display = "block";
+    btn.disabled = false;
+    icon.textContent = "🎬";
+    txt.textContent = "Generate Video";
+  }
+});
+</script>
+{% endblock %}
