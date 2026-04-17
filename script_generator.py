@@ -16,7 +16,7 @@ def scrape_website(url: str) -> dict:
         r = requests.get(url, timeout=15, headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         })
-        soup = BeautifulSoup(r.text, "html.parser")
+        soup = BeautifulSoup(r.text, "lxml")
 
         # Extract title and meta description first — highest signal
         title = soup.title.string.strip() if soup.title else ""

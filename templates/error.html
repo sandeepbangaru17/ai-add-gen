@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} — AI Video Generator{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:80px;padding-bottom:80px;text-align:center">
+  <div style="max-width:480px;margin:0 auto">
+
+    <div style="font-size:5rem;margin-bottom:16px">
+      {% if code == 404 %}🔍{% elif code == 500 %}⚙️{% else %}⚠️{% endif %}
+    </div>
+
+    <div class="hero-badge" style="margin:0 auto 24px;width:fit-content">
+      <span class="dot" style="background:#ef4444"></span>
+      Error {{ code }}
+    </div>
+
+    <h1 style="font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:12px">
+      {% if code == 404 %}Page Not Found
+      {% elif code == 500 %}Something Went Wrong
+      {% else %}Unexpected Error{% endif %}
+    </h1>
+
+    <p style="color:var(--text-2);font-size:0.95rem;margin-bottom:36px">
+      {% if code == 404 %}That page doesn't exist or the job has expired.
+      {% elif code == 500 %}An internal error occurred. Please try again.
+      {% else %}{{ message or "An unexpected error occurred." }}{% endif %}
+    </p>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="/" class="btn-primary" style="text-decoration:none;width:auto;padding:0 32px">
+        🎬 Generate a Video
+      </a>
+      <a href="/videos" class="btn-outline" style="text-decoration:none;justify-content:center">
+        📂 My Videos
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

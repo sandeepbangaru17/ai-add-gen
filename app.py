@@ -250,6 +250,17 @@ def download(job_id, filename):
     return send_file(str(file_path), as_attachment=True, download_name=filename)
 
 
+# ── Error handlers ────────────────────────────────────────────────────
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("error.html", code=404), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template("error.html", code=500), 500
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, threaded=True, host="0.0.0.0", port=port)
