@@ -35,7 +35,7 @@ FFPROBE = _find_ff("ffprobe")
 PEXELS_KEY     = os.environ.get("PEXELS_API_KEY", "")
 PEXELS_HEADERS = {"Authorization": PEXELS_KEY}
 
-OUT_W, OUT_H = 1920, 1080
+OUT_W, OUT_H = 1280, 720   # process at 720p to stay within 512MB RAM; exported at 1080p
 FPS = 24
 
 # ── Fonts ─────────────────────────────────────────────────────────────
