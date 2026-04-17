@@ -304,43 +304,36 @@ def build_overlay(img, scene, brand):
         ux = (W-(bb_url[2]-bb_url[0]))//2
         d.text((ux, by2+bh+28), brand["website"], font=f_url, fill=(*GRAY, 200))
 
-    return Image.alpha_composite(img.convert("RGBA"), cv).convert("RGB")
+    return Image.alpha_composite(img.convert("RGBA"), cv)
 
 
 # ── Frame burner ─────────────────────────────────────────────────────
 
 def burn_overlay(src, out, scene, brand):
-    total = scene["duration_seconds"] * FPS
-    reader = subprocess.Popen(
-        [FFMPEG, "-i", str(src), "-f", "rawvideo", "-pix_fmt", "rgb24",
-         "-vframes", str(total), "pipe:1"],
-        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-    )
-    writer = subprocess.Popen(
-        [FFMPEG, "-y", "-f", "rawvideo", "-vcodec", "rawvideo",
-         "-s", f"{OUT_W}x{OUT_H}", "-pix_fmt", "rgb24",
-         "-r", str(FPS), "-i", "pipe:0",
-         "-c:v", "libx264", "-pix_fmt", "yuv420p",
-         "-preset", "medium", "-crf", "15", str(out)],
-        stdin=subprocess.PIPE, stderr=subprocess.DEVNULL,
-    )
-    frame_size = OUT_W * OUT_H * 3
-    idx = 0
+    """
+    Generate a single RGBA overlay PNG with PIL, then let FFmpeg composite
+    it onto every frame. Uses ~1 image worth of RAM instead of 1 per frame.
+    """
+    overlay_path = out.parent / f"overlay_{scene['scene_number']}.png"
     try:
-        while idx < total:
-            raw = reader.stdout.read(frame_size)
-            if len(raw) < frame_size:
-                break
-            img = Image.frombytes("RGB", (OUT_W, OUT_H), raw)
-            img = build_overlay(img, scene, brand)
-            writer.stdin.write(img.tobytes())
-            idx += 1
+        # Build overlay on a transparent canvas (no background frame needed)
+        canvas = Image.new("RGBA", (OUT_W, OUT_H), (0, 0, 0, 0))
+        overlay = build_overlay(canvas, scene, brand).convert("RGBA")
+        overlay.save(str(overlay_path))
+        del canvas, overlay  # free PIL memory immediately
+
+        r = subprocess.run([
+            FFMPEG, "-y",
+            "-i", str(src),
+            "-i", str(overlay_path),
+            "-filter_complex", "[0:v][1:v]overlay=0:0",
+            "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-preset", "medium", "-crf", "15",
+            str(out)
+        ], capture_output=True)
+        return r.returncode == 0
     finally:
-        reader.stdout.close()
-        reader.terminate()
-        writer.stdin.close()
-        writer.wait()
-    return writer.returncode == 0
+        overlay_path.unlink(missing_ok=True)
 
 
 # ── TTS ──────────────────────────────────────────────────────────────
