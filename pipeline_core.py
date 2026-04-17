@@ -3,7 +3,7 @@ pipeline_core.py — Abstract video generation pipeline.
 Accepts any product script dict and yields progress strings via a queue.
 """
 
-import os, json, time, shutil, subprocess, asyncio
+import os, gc, json, time, shutil, subprocess, asyncio
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import requests
@@ -78,12 +78,14 @@ def search_pexels(queries, min_duration):
             candidates = [v for v in videos if v.get("duration", 0) >= min_duration] or videos
             for vid in candidates:
                 files = vid.get("video_files", [])
+                # Prefer 720p (≤1366px wide) to keep FFmpeg memory usage low on free tier
+                sd  = [f for f in files if f.get("width", 0) <= 1366 and f.get("height", 0) >= 480 and f.get("file_type") == "video/mp4"]
                 hd  = [f for f in files if 1280 <= f.get("width", 0) <= 1920 and f.get("file_type") == "video/mp4"]
-                uhd = [f for f in files if f.get("width", 0) > 1920 and f.get("file_type") == "video/mp4"]
-                pick = sorted(hd if hd else uhd, key=lambda f: f.get("width", 0), reverse=True)
+                # Pick smallest available: 720p first, then 1080p
+                pick = sorted(sd if sd else hd, key=lambda f: f.get("width", 0))
                 if pick:
-                    return {"url": pick[0]["link"], "width": pick[0]["width"],
-                            "height": pick[0]["height"], "duration": vid["duration"],
+                    return {"url": pick[-1]["link"], "width": pick[-1]["width"],
+                            "height": pick[-1]["height"], "duration": vid["duration"],
                             "id": vid["id"], "query": query}
         except Exception:
             pass
@@ -462,10 +464,20 @@ def run_pipeline(job_dir: Path, script: dict, brand: dict):
 
         if not trim_clip(raw, trim, dur):
             yield f"[ERROR] Trim failed for scene {n}"; return
+
+        # Free raw clip immediately after trimming to save disk + memory
+        raw.unlink(missing_ok=True)
+        gc.collect()
+
         yield f"[{n}/4] Burning {lbl} overlay..."
 
         if not burn_overlay(trim, proc, scene, brand):
             yield f"[ERROR] Overlay failed for scene {n}"; return
+
+        # Free trimmed clip after overlay is burned
+        trim.unlink(missing_ok=True)
+        gc.collect()
+
         yield f"[{n}/4] Scene {lbl} done."
 
         final_clips.append(proc)
