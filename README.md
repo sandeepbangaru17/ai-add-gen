@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/Groq-LLaMA%203.3%2070B-F55036?style=flat-square" alt="Groq">
   <img src="https://img.shields.io/badge/Pexels-4K%20Stock%20Footage-05A081?style=flat-square" alt="Pexels">
   <img src="https://img.shields.io/badge/Edge%20TTS-8%20Voices-0078D4?style=flat-square&logo=microsoft&logoColor=white" alt="TTS">
+  <img src="https://img.shields.io/badge/Deployed%20on-Railway-0B0D0E?style=flat-square&logo=railway&logoColor=white" alt="Railway">
   <img src="https://img.shields.io/badge/License-MIT-22c55e?style=flat-square" alt="License">
 </p>
 
@@ -63,7 +64,7 @@ Enter a URL — AI writes the script, finds cinematic footage, adds a profession
 | **Website scraping** | BeautifulSoup4 |
 | **Real-time progress** | Server-Sent Events (SSE) |
 | **Fonts** | Inter (bundled) |
-| **Deployment** | Render (static FFmpeg binary via build.sh) |
+| **Deployment** | Railway (FFmpeg via nixpacks) |
 
 ---
 
@@ -210,24 +211,17 @@ ai-add-gen/
 
 ---
 
-## Deployment (Render)
+## Deployment (Railway)
 
 1. Fork / clone this repo to GitHub
-2. Create a new **Web Service** on [render.com](https://render.com)
-3. Connect your repo and set:
-
-| Setting | Value |
-|---------|-------|
-| **Build Command** | `bash build.sh` |
-| **Start Command** | `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 300` |
-
-4. Add environment variables:
+2. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
+3. Select your repo — Railway auto-detects `nixpacks.toml` and installs FFmpeg
+4. Add environment variables in the **Variables** tab:
    - `GROQ_API_KEY`
    - `PEXELS_API_KEY`
+5. Railway gives you a public URL automatically — done.
 
-5. Deploy — done.
-
-> `build.sh` automatically downloads a static FFmpeg binary — no sudo or system packages needed.
+> `nixpacks.toml` installs FFmpeg via apt and gunicorn starts automatically.
 
 ---
 
