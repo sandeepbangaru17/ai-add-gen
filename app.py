@@ -3,7 +3,7 @@ app.py — Flask web application for AI Video Ad Generator.
 Run: python app.py  |  Open: http://localhost:5000
 """
 
-import os, uuid, json, queue, threading
+import os, uuid, json, threading
 from pathlib import Path
 from datetime import datetime
 from flask import (Flask, render_template, request,
@@ -138,24 +138,33 @@ def generate():
     with open(job_dir / "meta.json", "w") as f:
         json.dump(meta, f)
 
-    q = queue.Queue()
-    _jobs[job_id] = {"status": "processing", "queue": q, "brand": brand, "meta": meta}
+    _jobs[job_id] = {"status": "processing", "log": [], "brand": brand, "meta": meta}
 
     def worker():
+        job = _jobs[job_id]
+        def push(msg):
+            job["log"].append(msg)
+
         try:
-            q.put("Analysing product and generating script...")
+            push("Analysing product and generating script...")
             script = generate_script(product_name, tagline, website_url)
             with open(job_dir / "script.json", "w") as f:
                 json.dump(script, f, indent=2)
-            q.put("Script ready. Starting video pipeline...")
+            push("Script ready. Starting video pipeline...")
             for msg in run_pipeline(job_dir, script, brand):
-                q.put(msg)
-            # Mark done in meta
+                push(msg)
+                if msg.startswith("DONE|"):
+                    job["status"] = "done"
+                    meta["status"] = "done"
+                    with open(job_dir / "meta.json", "w") as f:
+                        json.dump(meta, f)
+                    return
             meta["status"] = "done"
             with open(job_dir / "meta.json", "w") as f:
                 json.dump(meta, f)
         except Exception as e:
-            q.put(f"ERROR|{e}")
+            push(f"ERROR|{e}")
+            job["status"] = "error"
 
     threading.Thread(target=worker, daemon=True).start()
     return jsonify({"job_id": job_id})
@@ -180,39 +189,37 @@ def job_page(job_id):
 
 @app.route("/progress/<job_id>")
 def progress_stream(job_id):
+    """Polling endpoint — returns new log messages since `since` index."""
+    since = int(request.args.get("since", 0))
+
     if job_id not in _jobs:
-        # Job may have finished — send DONE immediately
+        # Job not in memory — check if already done on disk
         job_dir = JOBS_DIR / job_id
         if (job_dir / "meta.json").exists():
             with open(job_dir / "meta.json") as f:
                 meta = json.load(f)
             if meta.get("status") == "done":
-                slug = meta.get("product","video").lower().replace(" ","_")
+                slug = meta.get("product", "video").lower().replace(" ", "_")
                 formats = {
                     lbl: f"{slug}_{lbl}.mp4"
-                    for lbl in ["16x9","9x16","1x1"]
+                    for lbl in ["16x9", "9x16", "1x1"]
                     if (job_dir / f"{slug}_{lbl}.mp4").exists()
                 }
-                def _done():
-                    yield f"data: DONE|{json.dumps(formats)}\n\n"
-                return Response(_done(), mimetype="text/event-stream",
-                                headers={"Cache-Control":"no-cache","X-Accel-Buffering":"no"})
+                return jsonify({
+                    "status": "done",
+                    "messages": [f"DONE|{json.dumps(formats)}"],
+                    "next": 1,
+                })
         abort(404)
 
-    def stream():
-        q = _jobs[job_id]["queue"]
-        while True:
-            try:
-                msg = q.get(timeout=20)
-                yield f"data: {msg}\n\n"
-                if msg.startswith("DONE|") or msg.startswith("ERROR"):
-                    break
-            except queue.Empty:
-                # Send SSE comment as heartbeat to keep Render proxy alive
-                yield ": heartbeat\n\n"
-
-    return Response(stream(), mimetype="text/event-stream",
-                    headers={"Cache-Control":"no-cache","X-Accel-Buffering":"no"})
+    job  = _jobs[job_id]
+    log  = job["log"]
+    new  = log[since:]
+    return jsonify({
+        "status":   job["status"],
+        "messages": new,
+        "next":     since + len(new),
+    })
 
 
 @app.route("/videos")

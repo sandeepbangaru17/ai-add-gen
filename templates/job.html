@@ -253,12 +253,13 @@ function showResult(formatsJson) {
   }, 400);
 }
 
-// ── SSE ────────────────────────────────────────────────────
-const es = new EventSource(`/progress/${JOB_ID}`);
+// ── Polling ─────────────────────────────────────────────────
+let _since = 0;
+let _pollTimer = null;
+let _done = false;
 
-es.onmessage = e => {
-  const msg = e.data.trim();
-  if (!msg) return;
+function handleMsg(msg) {
+  if (!msg || _done) return;
   appendLog(msg);
 
   // Script step
@@ -279,10 +280,10 @@ es.onmessage = e => {
       currentSceneNum = parseInt(n);
       setStepActive(n);
     }
-    if (msg.includes("Searching"))   { setStepDetail(n, "Searching Pexels..."); setBar(STEP_PCT[n+"-search"]); }
-    if (msg.includes("Found clip"))  { setStepDetail(n, "Downloading clip..."); }
-    if (msg.includes("Trimming"))    { setStepDetail(n, "Trimming to duration..."); }
-    if (msg.includes("Burning"))     { setStepDetail(n, "Rendering text overlay..."); }
+    if (msg.includes("Searching"))  { setStepDetail(n, "Searching Pexels..."); setBar(STEP_PCT[n+"-search"]); }
+    if (msg.includes("Found clip")) { setStepDetail(n, "Downloading clip..."); }
+    if (msg.includes("Trimming"))   { setStepDetail(n, "Trimming to duration..."); }
+    if (msg.includes("Burning"))    { setStepDetail(n, "Rendering text overlay..."); }
     if (msg.includes("Scene") && msg.includes("done")) {
       setStepDone(n, "Clip ready");
       setBar(STEP_PCT[n+"-done"]);
@@ -301,7 +302,8 @@ es.onmessage = e => {
   }
 
   if (msg.startsWith("DONE|")) {
-    es.close();
+    _done = true;
+    clearTimeout(_pollTimer);
     setStepDone("assemble", "All formats exported");
     setBar(100);
     try {
@@ -312,12 +314,26 @@ es.onmessage = e => {
   }
 
   if (msg.startsWith("ERROR") || msg.startsWith("[ERROR]")) {
-    es.close();
+    _done = true;
+    clearTimeout(_pollTimer);
     document.getElementById("logBox").style.color = "#fca5a5";
     document.getElementById("statusLabel").textContent = "Something went wrong";
   }
-};
+}
 
-es.onerror = () => appendLog("[Connection error — please refresh]");
+async function poll() {
+  if (_done) return;
+  try {
+    const res  = await fetch(`/progress/${JOB_ID}?since=${_since}`);
+    if (res.ok) {
+      const data = await res.json();
+      _since = data.next;
+      (data.messages || []).forEach(handleMsg);
+    }
+  } catch(e) { /* network blip — retry next tick */ }
+  if (!_done) _pollTimer = setTimeout(poll, 2500);
+}
+
+poll();
 </script>
 {% endblock %}
