@@ -203,13 +203,13 @@ def progress_stream(job_id):
         q = _jobs[job_id]["queue"]
         while True:
             try:
-                msg = q.get(timeout=300)
+                msg = q.get(timeout=20)
                 yield f"data: {msg}\n\n"
                 if msg.startswith("DONE|") or msg.startswith("ERROR"):
                     break
             except queue.Empty:
-                yield "data: [TIMEOUT]\n\n"
-                break
+                # Send SSE comment as heartbeat to keep Render proxy alive
+                yield ": heartbeat\n\n"
 
     return Response(stream(), mimetype="text/event-stream",
                     headers={"Cache-Control":"no-cache","X-Accel-Buffering":"no"})
