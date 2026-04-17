@@ -4,6 +4,9 @@ Run: python app.py  |  Open: http://localhost:5000
 """
 
 import os, uuid, json, threading
+
+# Only one video pipeline runs at a time to stay within 512MB RAM
+_pipeline_lock = threading.Lock()
 from pathlib import Path
 from datetime import datetime
 from flask import (Flask, render_template, request,
@@ -145,26 +148,27 @@ def generate():
         def push(msg):
             job["log"].append(msg)
 
-        try:
-            push("Analysing product and generating script...")
-            script = generate_script(product_name, tagline, website_url)
-            with open(job_dir / "script.json", "w") as f:
-                json.dump(script, f, indent=2)
-            push("Script ready. Starting video pipeline...")
-            for msg in run_pipeline(job_dir, script, brand):
-                push(msg)
-                if msg.startswith("DONE|"):
-                    job["status"] = "done"
-                    meta["status"] = "done"
-                    with open(job_dir / "meta.json", "w") as f:
-                        json.dump(meta, f)
-                    return
-            meta["status"] = "done"
-            with open(job_dir / "meta.json", "w") as f:
-                json.dump(meta, f)
-        except Exception as e:
-            push(f"ERROR|{e}")
-            job["status"] = "error"
+        with _pipeline_lock:  # serialise jobs — one at a time
+            try:
+                push("Analysing product and generating script...")
+                script = generate_script(product_name, tagline, website_url)
+                with open(job_dir / "script.json", "w") as f:
+                    json.dump(script, f, indent=2)
+                push("Script ready. Starting video pipeline...")
+                for msg in run_pipeline(job_dir, script, brand):
+                    push(msg)
+                    if msg.startswith("DONE|"):
+                        job["status"] = "done"
+                        meta["status"] = "done"
+                        with open(job_dir / "meta.json", "w") as f:
+                            json.dump(meta, f)
+                        return
+                meta["status"] = "done"
+                with open(job_dir / "meta.json", "w") as f:
+                    json.dump(meta, f)
+            except Exception as e:
+                push(f"ERROR|{e}")
+                job["status"] = "error"
 
     threading.Thread(target=worker, daemon=True).start()
     return jsonify({"job_id": job_id})

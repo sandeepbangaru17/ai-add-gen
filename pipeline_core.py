@@ -35,7 +35,7 @@ FFPROBE = _find_ff("ffprobe")
 PEXELS_KEY     = os.environ.get("PEXELS_API_KEY", "")
 PEXELS_HEADERS = {"Authorization": PEXELS_KEY}
 
-OUT_W, OUT_H = 1280, 720   # process at 720p to stay within 512MB RAM; exported at 1080p
+OUT_W, OUT_H = 854, 480    # process at 480p to stay within 512MB RAM; exported at 1080p via FFmpeg
 FPS = 24
 
 # ── Fonts ─────────────────────────────────────────────────────────────
@@ -78,14 +78,12 @@ def search_pexels(queries, min_duration):
             candidates = [v for v in videos if v.get("duration", 0) >= min_duration] or videos
             for vid in candidates:
                 files = vid.get("video_files", [])
-                # Prefer 720p (≤1366px wide) to keep FFmpeg memory usage low on free tier
-                sd  = [f for f in files if f.get("width", 0) <= 1366 and f.get("height", 0) >= 480 and f.get("file_type") == "video/mp4"]
-                hd  = [f for f in files if 1280 <= f.get("width", 0) <= 1920 and f.get("file_type") == "video/mp4"]
-                # Pick smallest available: 720p first, then 1080p
-                pick = sorted(sd if sd else hd, key=lambda f: f.get("width", 0))
+                # Prefer smallest available clip to minimise FFmpeg RAM on free tier
+                all_mp4 = [f for f in files if f.get("file_type") == "video/mp4" and f.get("width", 0) >= 640]
+                pick = sorted(all_mp4, key=lambda f: f.get("width", 0))  # smallest first
                 if pick:
-                    return {"url": pick[-1]["link"], "width": pick[-1]["width"],
-                            "height": pick[-1]["height"], "duration": vid["duration"],
+                    return {"url": pick[0]["link"], "width": pick[0]["width"],
+                            "height": pick[0]["height"], "duration": vid["duration"],
                             "id": vid["id"], "query": query}
         except Exception:
             pass
