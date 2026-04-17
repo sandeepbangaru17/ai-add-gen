@@ -338,16 +338,38 @@ def burn_overlay(src, out, scene, brand):
 
 # ── TTS ──────────────────────────────────────────────────────────────
 
-async def _tts(text, voice, out):
+async def _edge_tts(text, voice, out):
     import edge_tts
     await edge_tts.Communicate(text, voice).save(str(out))
+
+
+def _gtts_fallback(text, out):
+    """Fallback TTS using gTTS (Google) when edge-tts fails."""
+    from gtts import gTTS
+    tts = gTTS(text=text, lang="en")
+    tts.save(str(out))
+
+
+def _generate_scene_audio(text, voice, out, retries=3):
+    """Try edge-tts with retries, fall back to gTTS on failure."""
+    for attempt in range(retries):
+        try:
+            asyncio.run(_edge_tts(text, voice, out))
+            if out.exists() and out.stat().st_size > 0:
+                return
+        except Exception:
+            if out.exists():
+                out.unlink(missing_ok=True)
+            time.sleep(2)
+    # Fallback to gTTS
+    _gtts_fallback(text, out)
 
 
 def generate_voiceover(scenes, voice_dir, voice="en-US-AriaNeural"):
     files = []
     for i, sc in enumerate(scenes):
         out = voice_dir / f"scene_{i+1}.mp3"
-        asyncio.run(_tts(sc["voiceover"], voice, out))
+        _generate_scene_audio(sc["voiceover"], voice, out)
         files.append(out)
     list_f = voice_dir / "files.txt"
     with open(list_f, "w") as f:
