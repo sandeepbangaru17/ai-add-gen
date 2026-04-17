@@ -3,8 +3,8 @@
 # AI Video Ad Generator
 
 <p>
-  <a href="https://ai-add-gen.onrender.com" target="_blank">
-    <img src="https://img.shields.io/badge/🚀%20Live%20Demo-ai--add--gen.onrender.com-6366f1?style=for-the-badge" alt="Live Demo">
+  <a href="https://web-production-d085b.up.railway.app" target="_blank">
+    <img src="https://img.shields.io/badge/🚀%20Live%20Demo-web-production-d085b.up.railway.app-6366f1?style=for-the-badge" alt="Live Demo">
   </a>
 </p>
 
@@ -21,7 +21,7 @@
 **Generate a broadcast-ready 30-second product ad in minutes.**  
 Enter a URL — AI writes the script, finds cinematic footage, adds a professional voiceover, and exports in 3 formats. Automatically.
 
-[**→ Try it live**](https://ai-add-gen.onrender.com)
+[**→ Try it live**](https://web-production-d085b.up.railway.app)
 
 </div>
 
@@ -40,7 +40,7 @@ Enter a URL — AI writes the script, finds cinematic footage, adds a profession
 
 ## Live Demo
 
-**[https://ai-add-gen.onrender.com](https://ai-add-gen.onrender.com)**
+**[https://web-production-d085b.up.railway.app](https://web-production-d085b.up.railway.app)**
 
 | Page | Description |
 |------|-------------|
@@ -254,6 +254,6 @@ MIT — see [LICENSE](LICENSE) for details.
 
 Built with Groq · Pexels · Edge TTS · FFmpeg · Flask
 
-[Live Demo](https://ai-add-gen.onrender.com) · [Report Bug](https://github.com/sandeepbangaru17/ai-add-gen/issues) · [Request Feature](https://github.com/sandeepbangaru17/ai-add-gen/discussions)
+[Live Demo](https://web-production-d085b.up.railway.app) · [Report Bug](https://github.com/sandeepbangaru17/ai-add-gen/issues) · [Request Feature](https://github.com/sandeepbangaru17/ai-add-gen/discussions)
 
 </div>
